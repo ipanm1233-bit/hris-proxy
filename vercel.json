@@ -1,8 +1,15 @@
 {
-  "rewrites": [
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "headers": [
     {
       "source": "/(.*)",
-      "destination": "https://script.google.com/macros/s/AKfycbwbjS59_55JhnCMKxCe7Un78bwYJLdROCAZBEc-wRu0OUkln7xhm2tTHG2v7SNdCtGJeg/exec"
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
     }
   ]
 }
