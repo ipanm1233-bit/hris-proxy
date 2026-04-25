@@ -5,346 +5,274 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal Penilaian Karyawan — CV. Andela Jaya</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      background: #f1f5f9;
-      min-height: 100vh;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; }
+
+    /* ── TOP BAR (branding strip) ── */
+    .topbar {
+      background: #D32F2F;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .topbar .logo { background:#fff; color:#D32F2F; font-size:16px; font-weight:900; width:40px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .topbar .brand h1 { color:#fff; font-size:15px; font-weight:800; }
+    .topbar .brand p  { color:#ffcdd2; font-size:10px; letter-spacing:.5px; }
+
+    /* ── LOGIN CARD ── */
+    #loginWrap {
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      min-height: calc(100vh - 65px);
+      padding: 24px 16px;
     }
     .card {
       background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+      border-radius: 14px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.10);
       width: 100%;
-      max-width: 460px;
+      max-width: 440px;
       overflow: hidden;
     }
-    .header {
-      background: #D32F2F;
-      padding: 24px 28px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    .logo-box {
-      background: #fff;
-      color: #D32F2F;
-      font-size: 20px;
-      font-weight: 900;
-      width: 52px;
-      height: 52px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .header-text h1 {
-      color: #fff;
-      font-size: 18px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-    }
-    .header-text p {
-      color: #ffcdd2;
-      font-size: 11px;
-      margin-top: 3px;
-      letter-spacing: 0.5px;
-    }
-    .body { padding: 28px; }
-
-    /* Info card karyawan */
-    .info-card {
+    .card-body { padding: 28px 26px; }
+    .info-box {
       background: #f8fafc;
       border: 1px solid #e2e8f0;
       border-radius: 10px;
-      padding: 16px 18px;
+      padding: 14px 16px;
       margin-bottom: 22px;
     }
-    .info-card .label {
-      font-size: 10px;
-      font-weight: 700;
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-bottom: 10px;
+    .info-box .lbl { font-size:10px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:.8px; margin-bottom:10px; }
+    .info-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+    .info-row:last-child { margin-bottom:0; }
+    .info-row .k { font-size:12px; color:#64748b; min-width:90px; font-weight:600; }
+    .info-row .v { font-size:13px; color:#0f172a; font-weight:700; }
+    .badge-period { background:#fef3c7; color:#b45309; border:1px solid #fde68a; padding:2px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+    label { display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:6px; }
+    input[type="email"], input[type="text"] {
+      width:100%; padding:12px 13px; border:1.5px solid #cbd5e1; border-radius:8px;
+      font-size:14px; color:#0f172a; outline:none; transition:border-color .2s; margin-bottom:14px;
     }
-    .info-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-    .info-row:last-child { margin-bottom: 0; }
-    .info-row .key {
-      font-size: 12px;
-      color: #64748b;
-      min-width: 95px;
-      font-weight: 600;
-    }
-    .info-row .val {
-      font-size: 13px;
-      color: #0f172a;
-      font-weight: 700;
-    }
-    .badge-period {
-      background: #fef3c7;
-      color: #b45309;
-      border: 1px solid #fde68a;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 700;
-    }
+    input:focus { border-color:#D32F2F; box-shadow:0 0 0 3px rgba(211,47,47,.1); }
+    .btn { width:100%; padding:13px; background:#D32F2F; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:background .2s; }
+    .btn:hover { background:#b71c1c; }
+    .btn:disabled { background:#94a3b8; cursor:not-allowed; }
+    .alert { padding:11px 13px; border-radius:7px; font-size:13px; margin-bottom:14px; display:none; }
+    .alert-err { background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; }
+    .otp-hint { background:#eff6ff; border:1px dashed #bfdbfe; border-radius:8px; padding:12px 14px; font-size:12px; color:#1e40af; margin-bottom:14px; line-height:1.5; }
+    #step2 { display:none; }
+    .card-foot { background:#f8fafc; border-top:1px solid #e2e8f0; padding:12px 18px; text-align:center; font-size:11px; color:#94a3b8; }
 
-    /* Form */
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 700;
-      color: #334155;
-      margin-bottom: 7px;
+    /* ── IFRAME VIEW (fullscreen setelah login) ── */
+    #iframeWrap {
+      display: none;
+      flex-direction: column;
+      height: calc(100vh - 65px);
     }
-    input[type="email"], input[type="text"], input[type="password"] {
-      width: 100%;
-      padding: 13px 14px;
-      border: 1.5px solid #cbd5e1;
-      border-radius: 9px;
-      font-size: 14px;
-      color: #0f172a;
-      outline: none;
-      transition: border-color 0.2s;
-      margin-bottom: 16px;
-    }
-    input:focus { border-color: #D32F2F; box-shadow: 0 0 0 3px rgba(211,47,47,0.1); }
-
-    .btn {
-      width: 100%;
-      padding: 14px;
-      background: #D32F2F;
-      color: white;
+    #iframeWrap iframe {
+      flex: 1;
       border: none;
-      border-radius: 9px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.2s;
+      width: 100%;
+    }
+    .iframe-loading {
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      height: 100%;
+      color: #64748b;
+      gap: 14px;
+      font-size: 14px;
     }
-    .btn:hover { background: #b71c1c; }
-    .btn:disabled { background: #94a3b8; cursor: not-allowed; }
-
-    .alert {
-      padding: 12px 14px;
-      border-radius: 8px;
-      font-size: 13px;
-      margin-bottom: 16px;
-      display: none;
+    .spinner {
+      width: 40px; height: 40px;
+      border: 4px solid #e2e8f0;
+      border-top-color: #D32F2F;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
     }
-    .alert-err { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
-    .alert-ok  { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
-
-    .footer {
-      background: #f8fafc;
-      border-top: 1px solid #e2e8f0;
-      padding: 14px 20px;
-      text-align: center;
-      font-size: 11px;
-      color: #94a3b8;
-    }
-
-    /* Step 2 — hidden by default */
-    #step2 { display: none; }
-
-    .otp-hint {
-      background: #eff6ff;
-      border: 1px dashed #bfdbfe;
-      border-radius: 8px;
-      padding: 12px 14px;
-      font-size: 12px;
-      color: #1e40af;
-      margin-bottom: 16px;
-      line-height: 1.5;
-    }
+    @keyframes spin { to { transform:rotate(360deg); } }
   </style>
 </head>
 <body>
 
-<div class="card">
-  <!-- HEADER -->
-  <div class="header">
-    <div class="logo-box">AJ</div>
-    <div class="header-text">
-      <h1>CV. ANDELA JAYA</h1>
-      <p>PORTAL PENILAIAN KARYAWAN — HRIS</p>
-    </div>
-  </div>
-
-  <!-- BODY -->
-  <div class="body">
-
-    <!-- INFO KARYAWAN yang akan dinilai -->
-    <div class="info-card">
-      <div class="label">📋 Data Karyawan yang Akan Dinilai</div>
-      <div class="info-row">
-        <span class="key">Nama</span>
-        <span class="val" id="infoNama">—</span>
-      </div>
-      <div class="info-row">
-        <span class="key">NIK / ID</span>
-        <span class="val" id="infoId">—</span>
-      </div>
-      <div class="info-row">
-        <span class="key">Periode KPI</span>
-        <span class="badge-period" id="infoPeriode">—</span>
-      </div>
-    </div>
-
-    <!-- STEP 1: Masukkan Email -->
-    <div id="step1">
-      <div id="alertErr" class="alert alert-err"></div>
-
-      <label for="inputEmail">Masukkan Email Anda (Atasan / Evaluator)</label>
-      <input type="email" id="inputEmail" placeholder="contoh: manager@andelajaya.com" autocomplete="email">
-
-      <button class="btn" id="btnLanjut" onclick="prosesEmail()">
-        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555ZM0 4.697v7.104l5.803-3.558L0 4.697ZM6.761 8.83l-6.57 4.026A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757Zm3.436-.586L16 11.801V4.697l-5.803 3.546Z"/>
-        </svg>
-        Lanjutkan dengan Email Ini
-      </button>
-    </div>
-
-    <!-- STEP 2: Masukkan OTP -->
-    <div id="step2">
-      <div class="otp-hint">
-        🔒 Masukkan <strong>Kode OTP</strong> yang telah dikirimkan ke email Anda bersama notifikasi penilaian ini.
-      </div>
-      <div id="alertOtp" class="alert alert-err"></div>
-
-      <label for="inputOtp">Kode OTP (6 Digit)</label>
-      <input type="text" id="inputOtp" placeholder="Contoh: 123456" maxlength="6"
-        style="letter-spacing: 6px; font-size: 22px; font-weight: 900; text-align: center;"
-        oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-
-      <button class="btn" id="btnVerifikasi" onclick="prosesOTP()">
-        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-        </svg>
-        Verifikasi & Buka Form Penilaian
-      </button>
-
-      <p style="text-align:center; margin-top:14px; font-size:12px; color:#94a3b8;">
-        <a href="#" onclick="document.getElementById('step1').style.display='block'; document.getElementById('step2').style.display='none'; return false;"
-          style="color:#3b82f6; text-decoration:none;">← Ganti Email</a>
-      </p>
-    </div>
-
-  </div>
-
-  <div class="footer">
-    Sistem HRIS CV. Andela Jaya &nbsp;|&nbsp; Portal ini hanya untuk Atasan / Evaluator yang berwenang
+<!-- TOP BAR — selalu tampil agar user tahu mereka di hris-proxy.vercel.app -->
+<div class="topbar">
+  <div class="logo">AJ</div>
+  <div class="brand">
+    <h1>CV. ANDELA JAYA</h1>
+    <p>PORTAL PENILAIAN KARYAWAN — HRIS</p>
   </div>
 </div>
 
+<!-- ══ LOGIN PANEL ══ -->
+<div id="loginWrap">
+  <div class="card">
+    <div class="card-body">
+
+      <!-- Info karyawan yang akan dinilai -->
+      <div class="info-box">
+        <div class="lbl">📋 Data Karyawan yang Akan Dinilai</div>
+        <div class="info-row"><span class="k">Nama</span><span class="v" id="infoNama">—</span></div>
+        <div class="info-row"><span class="k">NIK / ID</span><span class="v" id="infoId">—</span></div>
+        <div class="info-row"><span class="k">Periode KPI</span><span class="badge-period" id="infoPeriode">—</span></div>
+      </div>
+
+      <!-- STEP 1: Email -->
+      <div id="step1">
+        <div id="alertStep1" class="alert alert-err"></div>
+        <label for="inputEmail">Email Anda (Atasan / Evaluator)</label>
+        <input type="email" id="inputEmail" placeholder="nama@andelajaya.com" autocomplete="email">
+        <button class="btn" id="btnStep1" onclick="goStep2()">
+          <svg width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555ZM0 4.697v7.104l5.803-3.558L0 4.697ZM6.761 8.83l-6.57 4.026A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757Zm3.436-.586L16 11.801V4.697l-5.803 3.546Z"/>
+          </svg>
+          Lanjutkan
+        </button>
+      </div>
+
+      <!-- STEP 2: OTP -->
+      <div id="step2">
+        <div class="otp-hint">🔒 Masukkan <strong>Kode OTP 6 digit</strong> yang dikirim bersama email notifikasi penilaian.</div>
+        <div id="alertStep2" class="alert alert-err"></div>
+        <label for="inputOtp">Kode OTP</label>
+        <input type="text" id="inputOtp" placeholder="× × × × × ×" maxlength="6"
+          style="letter-spacing:8px; font-size:24px; font-weight:900; text-align:center;"
+          oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+        <button class="btn" id="btnStep2" onclick="verifikasiOTP()">
+          <svg width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+          </svg>
+          Verifikasi &amp; Buka Form Penilaian
+        </button>
+        <p style="text-align:center; margin-top:12px; font-size:12px; color:#94a3b8;">
+          <a href="#" onclick="kembaliStep1(); return false;" style="color:#3b82f6; text-decoration:none;">← Ganti Email</a>
+        </p>
+      </div>
+
+    </div>
+    <div class="card-foot">Portal ini hanya untuk Atasan / Evaluator yang berwenang &nbsp;|&nbsp; CV. Andela Jaya</div>
+  </div>
+</div>
+
+<!-- ══ IFRAME PANEL (tampil setelah OTP diverifikasi) ══ -->
+<div id="iframeWrap">
+  <div class="iframe-loading" id="iframeLoading">
+    <div class="spinner"></div>
+    <span>Membuka Form Penilaian Karyawan…</span>
+  </div>
+  <iframe id="evalFrame" style="display:none;"
+    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
+    allow="fullscreen"
+    onload="onIframeLoaded()">
+  </iframe>
+</div>
+
 <script>
-  // ═══════════════════════════════════════════════════
-  // KONFIGURASI — Ganti URL AppScript Anda di sini
-  // Cara mendapatkan URL: Apps Script → Deploy → Manage → URL
-  // ═══════════════════════════════════════════════════
-  const APPSCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcwNLGgJhg0eU-9MHF3x94oKDmDt0jxSJKd53YsgO5vBOvVwR_4fdmKnQVYGIwIheo/exec";
+  // ════════════════════════════════════════════════════════════
+  // KONFIGURASI — URL AppScript deployment Anda
+  // Deploy → Manage deployments → URL (tanpa trailing slash)
+  // ════════════════════════════════════════════════════════════
+  const APPSCRIPT_URL = "https://script.google.com/macros/s/AKfycbzY_kL-XyJeVmx5h4rr3BeA-qTedeLwiBrQI8yRQexjaZ5VmPYFDF8aZBIKZT8F2Q/exec";
 
-  // Parse query params
-  const params   = new URLSearchParams(window.location.search);
-  const idSales  = params.get('idSales')    || '';
-  const namaSales= params.get('namaSales')  || '';
-  const periode  = params.get('periode')    || '';
-  const mode     = params.get('mode')       || 'spv';
-  const otpParam = params.get('otp')        || '';
+  // ── Baca URL params ──
+  const params    = new URLSearchParams(window.location.search);
+  const idSales   = params.get('idSales')   || '';
+  const namaSales = params.get('namaSales') || '';
+  const periode   = params.get('periode')   || '';
+  const mode      = params.get('mode')      || 'spv';
+  const otpParam  = params.get('otp')       || '';
 
-  // Tampilkan info karyawan
+  // ── Tampilkan info karyawan ──
   document.getElementById('infoNama').textContent    = decodeURIComponent(namaSales) || '—';
   document.getElementById('infoId').textContent      = decodeURIComponent(idSales)   || '—';
   document.getElementById('infoPeriode').textContent = decodeURIComponent(periode)   || '—';
 
-  // Validasi: jika parameter tidak lengkap
+  // Validasi param
   if (!idSales || !namaSales || !periode) {
-    document.getElementById('alertErr').style.display = 'block';
-    document.getElementById('alertErr').textContent   = '⚠️ Link tidak valid atau sudah kedaluwarsa. Minta HR untuk mengirim ulang link penilaian.';
-    document.getElementById('btnLanjut').disabled     = true;
+    showAlert('step1', '⚠️ Link tidak valid atau sudah kedaluwarsa. Minta HR mengirim ulang link penilaian.');
+    document.getElementById('btnStep1').disabled = true;
   }
 
-  function prosesEmail() {
+  // ── Step 1 → Step 2 ──
+  function goStep2() {
     let email = document.getElementById('inputEmail').value.trim();
-    let alertEl = document.getElementById('alertErr');
     if (!email || !email.includes('@')) {
-      alertEl.style.display = 'block';
-      alertEl.textContent   = '⚠️ Masukkan alamat email yang valid.';
+      showAlert('step1', '⚠️ Masukkan alamat email yang valid.');
       return;
     }
-    alertEl.style.display = 'none';
-    // Simpan email lalu lanjut ke step OTP
-    window._inputEmail = email;
+    clearAlert('step1');
+    window._evalEmail = email;
     document.getElementById('step1').style.display = 'none';
     document.getElementById('step2').style.display = 'block';
     document.getElementById('inputOtp').focus();
   }
 
-  function prosesOTP() {
-    let otp    = document.getElementById('inputOtp').value.trim();
-    let alertEl= document.getElementById('alertOtp');
-    let btn    = document.getElementById('btnVerifikasi');
+  function kembaliStep1() {
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step1').style.display = 'block';
+    clearAlert('step2');
+  }
 
+  // ── Step 2: Verifikasi OTP ──
+  function verifikasiOTP() {
+    let otp = document.getElementById('inputOtp').value.trim();
     if (otp.length !== 6) {
-      alertEl.style.display = 'block';
-      alertEl.textContent   = '⚠️ Kode OTP harus 6 digit angka.';
+      showAlert('step2', '⚠️ Kode OTP harus tepat 6 digit angka.');
       return;
     }
-
-    // Cek OTP dari URL param (sederhana — cocokkan saja)
-    // OTP lebih detail bisa divalidasi di AppScript via fetch,
-    // tapi untuk kemudahan deployment kita cocokkan di sisi klien dulu.
+    // Cocokkan dengan OTP dari URL param
     if (otpParam && otp !== otpParam) {
-      alertEl.style.display = 'block';
-      alertEl.textContent   = '❌ Kode OTP salah. Periksa kembali email Anda.';
+      showAlert('step2', '❌ Kode OTP salah. Periksa kembali email Anda dan pastikan copy yang benar.');
       return;
     }
+    clearAlert('step2');
+    let btn = document.getElementById('btnStep2');
+    btn.disabled = true;
+    btn.innerHTML = '<div style="width:16px;height:16px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;"></div>&nbsp; Membuka…';
 
-    alertEl.style.display = 'none';
-    btn.disabled           = true;
-    btn.innerHTML          = '<span style="display:inline-block;width:16px;height:16px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;"></span>&nbsp; Membuka Form Penilaian...';
+    // ── Buka AppScript di dalam IFRAME — tanpa redirect ──
+    let iframeUrl = APPSCRIPT_URL
+      + '?idSales='   + encodeURIComponent(decodeURIComponent(idSales))
+      + '&namaSales=' + encodeURIComponent(decodeURIComponent(namaSales))
+      + '&periode='   + encodeURIComponent(decodeURIComponent(periode))
+      + '&mode='      + encodeURIComponent(mode)
+      + '&email='     + encodeURIComponent(window._evalEmail || '')
+      + '&otp='       + encodeURIComponent(otp);
 
-    // Redirect ke AppScript dengan semua parameter
-    let targetUrl = APPSCRIPT_URL
-      + '?idSales='    + encodeURIComponent(idSales)
-      + '&namaSales='  + encodeURIComponent(namaSales)
-      + '&periode='    + encodeURIComponent(periode)
-      + '&mode='       + encodeURIComponent(mode)
-      + '&email='      + encodeURIComponent(window._inputEmail || '')
-      + '&otp='        + encodeURIComponent(otp);
+    // Sembunyikan login, tampilkan area iframe
+    document.getElementById('loginWrap').style.display   = 'none';
+    document.getElementById('iframeWrap').style.display  = 'flex';
+    document.getElementById('evalFrame').src             = iframeUrl;
+  }
 
-    setTimeout(() => { window.location.href = targetUrl; }, 600);
+  function onIframeLoaded() {
+    document.getElementById('iframeLoading').style.display = 'none';
+    document.getElementById('evalFrame').style.display     = 'block';
+  }
+
+  // ── Helpers ──
+  function showAlert(step, msg) {
+    let el = document.getElementById('alert' + (step === 'step1' ? 'Step1' : 'Step2'));
+    el.style.display = 'block';
+    el.textContent   = msg;
+  }
+  function clearAlert(step) {
+    let el = document.getElementById('alert' + (step === 'step1' ? 'Step1' : 'Step2'));
+    el.style.display = 'none';
+    el.textContent   = '';
   }
 
   // Enter shortcut
   document.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      if (document.getElementById('step2').style.display === 'block') prosesOTP();
-      else prosesEmail();
-    }
+    if (e.key !== 'Enter') return;
+    if (document.getElementById('step2').style.display !== 'none') verifikasiOTP();
+    else goStep2();
   });
 </script>
-
-<style>
-  @keyframes spin { to { transform: rotate(360deg); } }
-</style>
-
 </body>
 </html>
