@@ -1,16 +1,17 @@
 {
   "version": 2,
   "rewrites": [
-    { "source": "/eval", "destination": "/eval.html" },
-    { "source": "/eval/", "destination": "/eval.html" }
-  ],
-  "headers": [
+    {
+      "source": "/eval",
+      "destination": "/eval.html"
+    },
+    {
+      "source": "/eval/",
+      "destination": "/eval.html"
+    },
     {
       "source": "/(.*)",
-      "headers": [
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" }
-      ]
+      "destination": "/Index.html"
     }
   ]
 }
