@@ -11,22 +11,33 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100%;
+            height: 100vh;
             overflow: hidden; /* Anti scroll ganda */
             background-color: #f8fafc;
         }
-        iframe {
-            width: 100%;
-            height: 100%;
+        
+        /* Trik menyembunyikan banner Google dengan menarik iframe ke atas 36 pixel */
+        #app-frame {
             border: none;
+            width: 100%;
+            height: calc(100vh + 36px);
+            margin-top: -36px; 
             display: block;
         }
     </style>
 </head>
 <body>
-    <iframe 
-        src="https://script.google.com/macros/s/AKfycbxrxalS_EyUB3ZudDHqrqQ1zGpLnmEkPlYBUaPbJbxkLg39LL-gYmDOi0SrRQnpHzdh/exec" 
-        allow="autoplay; fullscreen">
-    </iframe>
+    <iframe id="app-frame" src="" allow="camera; microphone; fullscreen; clipboard-read; clipboard-write; autoplay"></iframe>
+
+    <script>
+        // URL Apps Script Anda
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxrxalS_EyUB3ZudDHqrqQ1zGpLnmEkPlYBUaPbJbxkLg39LL-gYmDOi0SrRQnpHzdh/exec";
+
+        // Tangkap parameter (seperti ?item=ATK-001 dari QR Scan)
+        const queryString = window.location.search; 
+        
+        // Teruskan ke dalam Google Apps Script secara tersembunyi
+        document.getElementById('app-frame').src = GAS_URL + queryString;
+    </script>
 </body>
 </html>
