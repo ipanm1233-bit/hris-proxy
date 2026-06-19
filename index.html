@@ -2,31 +2,2047 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HRIS CV. Andela Jaya</title>
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" type="image/png">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal HRIS & ERP Internal - CV Andela Jaya</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        corporate: '#C8102E',
+                        'corporate-dark': '#A00D24',
+                        'corporate-light': '#FEE2E2'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden; /* Anti scroll ganda */
-            background-color: #f8fafc;
-        }
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-        }
+        .hidden-view { display: none !important; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .spinner-sm { border-top-color: #C8102E; animation: spin 0.7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .step-line { position: relative; }
+        .step-line::after { content: ''; position: absolute; top: 14px; left: 100%; width: 100%; height: 2px; background: #e5e7eb; z-index: 0; }
+        .step-line:last-child::after { display: none; }
     </style>
 </head>
-<body>
-    <iframe 
-        src="https://script.google.com/macros/s/AKfycbzKiyEkA_GvnPenaUfXkmk3E2SKe5P7POmpCcHvXzUby_KrZVWj8HnMmESMxfgQrq2Y/exec" 
-        allow="autoplay; fullscreen">
-    </iframe>
+<body class="bg-gray-50 text-gray-800 font-sans h-screen overflow-hidden selection:bg-corporate selection:text-white">
+
+    <!-- ============================================================ -->
+    <!-- LOGIN VIEW -->
+    <!-- ============================================================ -->
+    <div id="login-view" class="flex items-center justify-center h-screen bg-gray-200 z-50 absolute inset-0 p-4">
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-md border-t-8 border-corporate fade-in">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-corporate-light text-corporate rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                    <i class="fa-solid fa-building-user"></i>
+                </div>
+                <h1 class="text-3xl font-extrabold text-gray-900">HRIS <span class="text-corporate">& ERP</span></h1>
+                <p class="text-sm text-gray-500 mt-2">Portal Operasional Terpadu &bull; CV Andela Jaya</p>
+            </div>
+            <form id="login-form" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">NIK / Username</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-id-badge text-gray-400"></i>
+                        </div>
+                        <input type="text" id="login-username" required class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-corporate focus:border-corporate outline-none bg-gray-50" placeholder="Masukkan NIK Anda">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Password</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-lock text-gray-400"></i>
+                        </div>
+                        <input type="password" id="login-password" required class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-corporate focus:border-corporate outline-none bg-gray-50" placeholder="••••••••">
+                    </div>
+                </div>
+                <div id="login-error" class="hidden-view text-red-600 text-sm font-semibold text-center bg-red-50 p-2 rounded border border-red-200"></div>
+                <button type="submit" id="btn-login" class="w-full py-3 px-4 rounded-lg shadow-md text-sm font-bold text-white bg-corporate hover:bg-corporate-dark transition duration-200 mt-4 flex items-center justify-center gap-2">
+                    <span id="btn-login-text">MASUK KE PORTAL</span>
+                    <div id="btn-login-spinner" class="hidden-view w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- APP SHELL (Sidebar + Header + Main Content) -->
+    <!-- ============================================================ -->
+    <div id="app-view" class="hidden-view flex h-screen bg-gray-50">
+
+        <!-- Backdrop overlay - hanya tampak di mobile saat sidebar terbuka -->
+        <div id="sidebar-backdrop" class="hidden-view fixed inset-0 bg-gray-900 bg-opacity-50 z-30 md:hidden"></div>
+
+        <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 w-64 bg-white border-r border-gray-200 flex flex-col h-full shadow-sm z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out shrink-0">
+            <div class="h-16 flex items-center justify-between px-6 bg-corporate text-white shrink-0">
+                <div class="flex items-center overflow-hidden">
+                    <i class="fa-solid fa-layer-group text-xl mr-3 shrink-0"></i>
+                    <span class="text-lg font-bold tracking-wider whitespace-nowrap">PORTAL AJ</span>
+                </div>
+                <button id="btn-close-sidebar" class="md:hidden text-white hover:text-red-200 p-1 shrink-0">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto py-6" id="sidebar-menu">
+                <div class="px-6 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Area Pribadi</div>
+                <nav class="space-y-1 mb-6 px-3" id="nav-pribadi">
+                    <button data-page="dashboard" class="nav-btn w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-red-50 hover:text-corporate transition">
+                        <i class="fa-solid fa-chart-pie w-6"></i> Dashboard Saya
+                    </button>
+                    <button data-page="sisa-cuti" class="nav-btn w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-red-50 hover:text-corporate transition">
+                        <i class="fa-solid fa-calendar-days w-6"></i> Sisa Cuti Saya
+                    </button>
+                    <button data-page="pengajuan" class="nav-btn w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-red-50 hover:text-corporate transition">
+                        <i class="fa-solid fa-file-signature w-6"></i> Buat Pengajuan
+                    </button>
+                    <button data-page="riwayat" class="nav-btn w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-red-50 hover:text-corporate transition">
+                        <i class="fa-solid fa-clock-rotate-left w-6"></i> Riwayat Pengajuan
+                    </button>
+                </nav>
+
+                <div id="menu-manajemen" class="hidden-view">
+                    <div class="px-6 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Area Manajemen</div>
+                    <nav class="space-y-1 mb-6 px-3">
+                        <button data-page="approval" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 text-sm font-bold rounded-lg text-corporate bg-corporate-light hover:bg-red-200 transition">
+                            <span><i class="fa-solid fa-clipboard-check w-6"></i> Antrean Persetujuan</span>
+                            <span id="badge-approval-count" class="hidden-view bg-corporate text-white text-xs font-bold rounded-full px-2 py-0.5">0</span>
+                        </button>
+                    </nav>
+                </div>
+
+                <div id="menu-hrd" class="hidden-view">
+                    <div class="px-6 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Otoritas HRD</div>
+                    <nav class="space-y-1 px-3">
+                        <button data-page="hrd-form-builder" class="nav-btn w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-red-50 hover:text-corporate transition">
+                            <i class="fa-solid fa-cogs w-6"></i> Form Builder
+                        </button>
+                        <button data-page="hrd-broadcast" class="nav-btn w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-red-50 hover:text-corporate transition">
+                            <i class="fa-solid fa-bullhorn w-6"></i> Broadcast Info
+                        </button>
+                        <button id="btn-export" class="w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-green-700 hover:bg-green-50 transition">
+                            <i class="fa-solid fa-file-csv w-6"></i> Export Data CSV
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-gray-200 bg-gray-50 shrink-0">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-corporate flex items-center justify-center text-white font-bold text-lg shrink-0" id="ui-initial">U</div>
+                    <div class="ml-3 overflow-hidden flex-1">
+                        <p class="text-sm font-bold text-gray-800 truncate" id="ui-name">Nama Karyawan</p>
+                        <p class="text-xs text-gray-500 truncate" id="ui-role-divisi">Role | Divisi</p>
+                    </div>
+                    <button id="btn-logout" class="text-gray-400 hover:text-corporate transition p-2 shrink-0" title="Keluar">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col h-full overflow-hidden relative min-w-0">
+
+            <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-8 z-10 shrink-0">
+                <div class="flex items-center gap-3 min-w-0">
+                    <button id="btn-toggle-sidebar" class="text-gray-500 hover:text-corporate p-2 -ml-2 shrink-0" title="Tampilkan/Sembunyikan Menu">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                    <h2 class="text-base md:text-xl font-bold text-gray-800 truncate" id="header-title">Dashboard</h2>
+                </div>
+                <div class="flex items-center space-x-2 md:space-x-4 shrink-0">
+                    <div class="bg-corporate-light text-corporate px-2.5 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-bold shadow-sm border border-red-200 whitespace-nowrap">
+                        <i class="fa-solid fa-calendar-check md:mr-1"></i><span class="hidden sm:inline"> Sisa Cuti:</span> <span id="ui-cuti" class="text-sm md:text-lg">0</span><span class="hidden sm:inline"> Hari</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-4 md:p-8" id="main-content">
+
+                <!-- ======================== PAGE: DASHBOARD ======================== -->
+                <div id="page-dashboard" class="page-section fade-in">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800">Selamat datang, <span id="welcome-name" class="text-corporate"></span>!</h3>
+                            <p class="text-gray-500 mt-1">Pantau status pengajuan dan informasi terbaru perusahaan di sini.</p>
+                        </div>
+                        <i class="fa-solid fa-hand-wave text-4xl text-yellow-400"></i>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div class="bg-gray-50 px-6 py-4 border-b flex items-center">
+                                <i class="fa-solid fa-bullhorn text-corporate mr-2"></i>
+                                <h4 class="font-bold text-gray-800">Papan Pengumuman</h4>
+                            </div>
+                            <div class="p-6 space-y-4 max-h-80 overflow-y-auto" id="announcement-list">
+                                <p class="text-sm text-gray-500 italic">Memuat pengumuman...</p>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div class="bg-gray-50 px-6 py-4 border-b flex items-center">
+                                <i class="fa-solid fa-chart-line text-corporate mr-2"></i>
+                                <h4 class="font-bold text-gray-800">Statistik Pengajuan Saya</h4>
+                            </div>
+                            <div class="p-6 grid grid-cols-2 gap-4">
+                                <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-100 text-center">
+                                    <div class="text-3xl font-black text-yellow-600" id="stat-pending">0</div>
+                                    <div class="text-xs font-bold text-yellow-800 uppercase mt-1">Pending</div>
+                                </div>
+                                <div class="p-4 bg-green-50 rounded-lg border border-green-100 text-center">
+                                    <div class="text-3xl font-black text-green-600" id="stat-approved">0</div>
+                                    <div class="text-xs font-bold text-green-800 uppercase mt-1">Approved</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ======================== PAGE: SISA CUTI ======================== -->
+                <div id="page-sisa-cuti" class="page-section hidden-view fade-in">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 text-center">
+                            <p class="text-sm font-bold text-gray-500 uppercase">Cuti Tahunan</p>
+                            <p class="text-4xl font-black text-corporate mt-2" id="cuti-tahunan-detail">0</p>
+                            <p class="text-xs text-gray-400 mt-1">Hari Tersisa</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 text-center">
+                            <p class="text-sm font-bold text-gray-500 uppercase">Cuti Khusus</p>
+                            <p class="text-4xl font-black text-corporate mt-2" id="cuti-khusus-detail">0</p>
+                            <p class="text-xs text-gray-400 mt-1">Hari Tersisa</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 text-center">
+                            <p class="text-sm font-bold text-gray-500 uppercase">Cuti Akumulasi</p>
+                            <p class="text-4xl font-black text-corporate mt-2" id="cuti-akumulasi-detail">0</p>
+                            <p class="text-xs text-gray-400 mt-1">Hari Tersisa</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-gray-50 px-6 py-4 border-b">
+                            <h4 class="font-bold text-gray-800">Riwayat Penggunaan Cuti</h4>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-gray-50 border-b">
+                                    <tr>
+                                        <th class="p-4 text-xs font-bold text-gray-500 uppercase">Tanggal</th>
+                                        <th class="p-4 text-xs font-bold text-gray-500 uppercase">Jenis</th>
+                                        <th class="p-4 text-xs font-bold text-gray-500 uppercase">Keterangan</th>
+                                        <th class="p-4 text-xs font-bold text-gray-500 uppercase">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-riwayat-cuti" class="divide-y divide-gray-100">
+                                    <tr><td colspan="4" class="p-6 text-center text-gray-400">Memuat riwayat cuti...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ======================== PAGE: BUAT PENGAJUAN ======================== -->
+                <div id="page-pengajuan" class="page-section hidden-view fade-in">
+                    <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-gray-50 px-8 py-5 border-b">
+                            <h3 class="text-lg font-bold text-gray-800">Formulir Pengajuan ISO</h3>
+                            <p class="text-sm text-gray-500">Pilih jenis form untuk memunculkan isian data.</p>
+                        </div>
+                        <div class="p-8">
+                            <div class="mb-6">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Pilih Form Pengajuan</label>
+                                <select id="form-selector" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-corporate outline-none bg-gray-50 font-medium">
+                                    <option value="">-- Silakan Pilih Form --</option>
+                                </select>
+                            </div>
+
+                            <div id="approval-flow-preview" class="hidden-view mb-6"></div>
+
+                            <div id="kasbon-warning" class="hidden-view mb-6 bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-md">
+                                <div class="flex">
+                                    <i class="fa-solid fa-triangle-exclamation text-yellow-600 text-lg mt-0.5 mr-3"></i>
+                                    <div>
+                                        <h3 class="text-sm font-bold text-yellow-800">Validasi Masa Kerja Aktif</h3>
+                                        <p class="text-sm text-yellow-700 mt-1">Pengajuan Kasbon (Cash Advance) hanya dapat diproses jika masa kerja Anda sudah genap minimal 1 Tahun di perusahaan.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="kasbon-blocked" class="hidden-view p-4 bg-red-50 text-red-700 font-bold text-center border border-red-200 rounded-lg mb-6">
+                                Maaf, akses form ini ditutup. Masa kerja Anda belum genap 1 Tahun.
+                            </div>
+
+                            <form id="dynamic-form" class="space-y-5 hidden-view">
+                                <div id="dynamic-fields-container" class="space-y-5"></div>
+
+                                <button type="submit" id="btn-submit-form" class="w-full bg-corporate text-white font-bold py-3.5 rounded-lg hover:bg-corporate-dark transition shadow-md mt-4 flex justify-center items-center gap-2">
+                                    <span id="btn-submit-form-text">KIRIM PENGAJUAN</span>
+                                    <div id="btn-submit-form-spinner" class="hidden-view w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ======================== PAGE: RIWAYAT ======================== -->
+                <div id="page-riwayat" class="page-section hidden-view fade-in">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-gray-50 border-b">
+                                    <tr>
+                                        <th class="p-4 text-xs font-bold text-gray-500 uppercase">ID Transaksi</th>
+                                        <th class="p-4 text-xs font-bold text-gray-500 uppercase">Jenis Form</th>
+                                        <th class="p-4 text-xs font-bold text-gray-500 uppercase">Waktu Pengajuan</th>
+                                        <th class="p-4 text-xs font-bold text-gray-500 uppercase">Progress Approval</th>
+                                        <th class="p-4 text-xs font-bold text-gray-500 uppercase">Status Final</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-riwayat" class="divide-y divide-gray-100">
+                                    <tr><td colspan="5" class="p-6 text-center text-gray-400">Memuat riwayat...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ======================== PAGE: ANTREAN APPROVAL ======================== -->
+                <div id="page-approval" class="page-section hidden-view fade-in">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-gray-50 px-6 py-4 border-b flex justify-between items-center">
+                            <h3 class="font-bold text-gray-800">Tugas Persetujuan Anda</h3>
+                            <button id="btn-refresh-approval" class="text-sm text-blue-600 hover:text-blue-800 font-semibold"><i class="fa-solid fa-rotate mr-1"></i>Refresh</button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-gray-100 border-b">
+                                    <tr>
+                                        <th class="p-4 text-xs font-bold text-gray-500 uppercase">Pemohon</th>
+                                        <th class="p-4 text-xs font-bold text-gray-500 uppercase">Pengajuan</th>
+                                        <th class="p-4 text-xs font-bold text-gray-500 uppercase">Detail</th>
+                                        <th class="p-4 text-xs font-bold text-gray-500 uppercase">Progress</th>
+                                        <th class="p-4 text-xs font-bold text-gray-500 uppercase text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-approval" class="divide-y divide-gray-100 bg-white">
+                                    <tr><td colspan="5" class="p-6 text-center text-gray-400">Memuat antrean...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ======================== PAGE: HRD FORM BUILDER ======================== -->
+                <div id="page-hrd-form-builder" class="page-section hidden-view fade-in">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+                        <div class="bg-gray-50 px-6 py-4 border-b flex justify-between items-center">
+                            <div>
+                                <h3 class="font-bold text-gray-800">Konfigurasi 13 Form ISO</h3>
+                                <p class="text-xs text-gray-500 mt-0.5">Klik salah satu form untuk mengedit field atau urutan approval-nya.</p>
+                            </div>
+                        </div>
+                        <div id="form-builder-list" class="divide-y divide-gray-100"></div>
+                    </div>
+                </div>
+
+                <!-- ======================== PAGE: HRD BROADCAST ======================== -->
+                <div id="page-hrd-broadcast" class="page-section hidden-view fade-in">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-1 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden self-start">
+                            <div class="bg-gray-50 px-6 py-4 border-b">
+                                <h3 class="font-bold text-gray-800">Buat Pengumuman Baru</h3>
+                            </div>
+                            <form id="broadcast-form" class="p-6 space-y-4">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Judul Pengumuman</label>
+                                    <input type="text" id="broadcast-title" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-corporate outline-none bg-gray-50">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Isi Pengumuman</label>
+                                    <textarea id="broadcast-body" required rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-corporate outline-none bg-gray-50 resize-none"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Tipe Target</label>
+                                    <select id="broadcast-type" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-corporate outline-none bg-gray-50 font-medium">
+                                        <option value="GENERAL">General (Semua Karyawan)</option>
+                                        <option value="SPECIFIC">Specific (NIK / Divisi Tertentu)</option>
+                                    </select>
+                                </div>
+                                <div id="broadcast-specific-wrapper" class="hidden-view">
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Target NIK / Divisi</label>
+                                    <input type="text" id="broadcast-target" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-corporate outline-none bg-gray-50" placeholder="Contoh: Divisi Sales, atau NIK 00123">
+                                    <p class="text-xs text-gray-400 mt-1">Pisahkan dengan koma jika lebih dari satu target.</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-1">Lampiran File (Opsional)</label>
+                                    <input type="file" id="broadcast-attachment" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-corporate outline-none bg-gray-50">
+                                </div>
+                                <button type="submit" id="btn-submit-broadcast" class="w-full bg-corporate text-white font-bold py-3 rounded-lg hover:bg-corporate-dark transition shadow-md flex justify-center items-center gap-2">
+                                    <span id="btn-submit-broadcast-text">KIRIM PENGUMUMAN</span>
+                                    <div id="btn-submit-broadcast-spinner" class="hidden-view w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                </button>
+                            </form>
+                        </div>
+                        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden self-start">
+                            <div class="bg-gray-50 px-6 py-4 border-b flex justify-between items-center">
+                                <h3 class="font-bold text-gray-800">Riwayat Pengumuman Terkirim</h3>
+                                <button id="btn-refresh-broadcast-history" class="text-sm text-blue-600 hover:text-blue-800 font-semibold"><i class="fa-solid fa-rotate mr-1"></i>Refresh</button>
+                            </div>
+                            <div id="broadcast-history-list" class="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
+                                <p class="p-6 text-center text-gray-400 text-sm">Memuat riwayat pengumuman...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- MODAL: TOLAK PENGAJUAN -->
+    <!-- ============================================================ -->
+    <div id="modal-reject" class="hidden-view fixed inset-0 bg-gray-900 bg-opacity-60 z-50 flex items-center justify-center p-4 fade-in">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+            <h3 class="text-lg font-bold text-gray-900 border-b pb-2 mb-4">Tolak Pengajuan</h3>
+            <p class="text-sm text-gray-600 mb-4">Siklus persetujuan sekuensial akan dihentikan dan notifikasi akan dikirim ke pemohon.</p>
+            <input type="hidden" id="reject-id">
+            <textarea id="reject-reason" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-corporate outline-none mb-4" placeholder="Wajib mengisi alasan penolakan..." required></textarea>
+            <div id="reject-error" class="hidden-view text-red-600 text-xs font-semibold mb-3"></div>
+            <div class="flex justify-end space-x-3">
+                <button id="btn-cancel-reject" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-bold hover:bg-gray-200">Batal</button>
+                <button id="btn-confirm-reject" class="px-4 py-2 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 shadow flex items-center gap-2">
+                    <span id="btn-confirm-reject-text">Tolak Pengajuan</span>
+                    <div id="btn-confirm-reject-spinner" class="hidden-view w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- MODAL: DETAIL DETAIL PENGAJUAN (Approval & Riwayat) -->
+    <!-- ============================================================ -->
+    <div id="modal-detail" class="hidden-view fixed inset-0 bg-gray-900 bg-opacity-60 z-50 flex items-center justify-center p-4 fade-in">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white px-6 py-4 border-b flex items-center justify-between">
+                <h3 class="text-lg font-bold text-gray-900">Detail Pengajuan</h3>
+                <button id="btn-close-detail" class="text-gray-400 hover:text-gray-600">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <div id="modal-detail-content" class="p-6 space-y-3"></div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- MODAL: FORM BUILDER (Create/Edit Field) -->
+    <!-- ============================================================ -->
+    <div id="modal-form-builder" class="hidden-view fixed inset-0 bg-gray-900 bg-opacity-60 z-50 flex items-center justify-center p-4 fade-in">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white px-6 py-4 border-b flex items-center justify-between z-10">
+                <h3 class="text-lg font-bold text-gray-900" id="form-builder-modal-title">Edit Form</h3>
+                <button id="btn-close-form-builder" class="text-gray-400 hover:text-gray-600">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <input type="hidden" id="fb-form-id">
+
+                <div class="mb-5">
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Nama Form</label>
+                    <input type="text" id="fb-form-name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-corporate outline-none bg-gray-50">
+                </div>
+
+                <div class="mb-5">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Urutan Approval (Sequential)</label>
+                    <div id="fb-approval-flow-list" class="flex flex-wrap items-center gap-2 mb-2"></div>
+                    <div class="flex gap-2">
+                        <select id="fb-add-approver-role" class="flex-1 p-2.5 border border-gray-300 rounded-lg text-sm bg-white">
+                            <option value="SPV">SPV</option>
+                            <option value="GM">GM</option>
+                            <option value="FINANCE">FINANCE</option>
+                            <option value="HRD">HRD</option>
+                        </select>
+                        <button type="button" id="btn-fb-add-approver" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-bold text-gray-700">
+                            <i class="fa-solid fa-plus mr-1"></i>Tambah ke Urutan
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-5">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-sm font-bold text-gray-700">Daftar Field Isian</label>
+                        <button type="button" id="btn-fb-add-field" class="text-xs font-bold text-corporate hover:text-corporate-dark">
+                            <i class="fa-solid fa-plus mr-1"></i>Tambah Field
+                        </button>
+                    </div>
+                    <div id="fb-fields-list" class="space-y-3"></div>
+                </div>
+
+                <div id="fb-error" class="hidden-view text-red-600 text-sm font-semibold bg-red-50 p-3 rounded-lg border border-red-200 mb-4"></div>
+
+                <div class="flex justify-end gap-3 border-t pt-4">
+                    <button type="button" id="btn-cancel-form-builder" class="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg font-bold hover:bg-gray-200">Batal</button>
+                    <button type="button" id="btn-save-form-builder" class="px-5 py-2.5 bg-corporate text-white rounded-lg font-bold hover:bg-corporate-dark shadow flex items-center gap-2">
+                        <span id="btn-save-form-builder-text">Simpan Konfigurasi</span>
+                        <div id="btn-save-form-builder-spinner" class="hidden-view w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden-view fixed bottom-6 right-6 left-6 sm:left-auto bg-gray-900 text-white px-5 py-3.5 rounded-xl shadow-xl z-50 fade-in text-sm font-medium max-w-sm"></div>
+
+<script>
+    // ============================================================
+    // KONFIGURASI BACKEND
+    // ============================================================
+    // WAJIB DIGANTI dengan URL Google Apps Script hasil deploy Anda
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwA67WkOsZBv6_-nhqcD9-I3JJy-YYSmXRql1kNdhdkregUzbZm9iBFbLiJ4BySRA7b4A/exec";
+
+    // ============================================================
+    // KONSTANTA
+    // ============================================================
+    const ALL_ROLES = ['SALES', 'SPV', 'GM', 'FINANCE', 'HRD'];
+    const MANAGEMENT_ROLES = ['SPV', 'GM', 'FINANCE', 'HRD']; // role yang BISA jadi approver di approvalFlow manapun
+    const FIELD_TYPES = ['text', 'number', 'date', 'textarea', 'select', 'file'];
+
+    // ============================================================
+    // 13 FORM ISO - FALLBACK DEFAULT
+    // Dipakai HANYA jika action 'get_forms' dari backend belum
+    // mengembalikan data (res.data kosong/null), supaya frontend
+    // tetap bisa didemokan sebelum backend benar-benar lengkap.
+    // Begitu backend mengirim data asli, ini otomatis diabaikan.
+    // ============================================================
+    const DEFAULT_FORM_CONFIGS = [
+        {
+            formId: 'F-01', formName: 'Dinas Luar Kota',
+            approvalFlow: ['SPV', 'GM'],
+            fields: [
+                { name: 'tujuan_dinas', label: 'Tujuan Dinas', type: 'text', required: true },
+                { name: 'tanggal_mulai', label: 'Tanggal Mulai', type: 'date', required: true },
+                { name: 'tanggal_selesai', label: 'Tanggal Selesai', type: 'date', required: true },
+                { name: 'plan_kunjungan', label: 'Plan Kunjungan (Toko/Lokasi)', type: 'textarea', required: true },
+                { name: 'plan_menginap', label: 'Plan Menginap', type: 'text', required: false }
+            ]
+        },
+        {
+            formId: 'F-02', formName: 'Support Toko',
+            approvalFlow: ['SPV', 'FINANCE', 'GM'],
+            fields: [
+                { name: 'nama_toko', label: 'Nama Toko', type: 'text', required: true },
+                { name: 'bentuk_support', label: 'Bentuk Support', type: 'textarea', required: true },
+                { name: 'estimasi_budget', label: 'Estimasi Budget (Rp)', type: 'number', required: true }
+            ]
+        },
+        {
+            formId: 'F-03', formName: 'Reimbursement',
+            approvalFlow: ['SPV', 'FINANCE'],
+            fields: [
+                { name: 'jenis_biaya', label: 'Kategori Biaya', type: 'select', options: ['Bensin', 'Tol/Parkir', 'Entertain Klien', 'ATK', 'Lainnya'], required: true },
+                { name: 'nominal', label: 'Total Klaim (Rp)', type: 'number', required: true },
+                { name: 'keterangan', label: 'Keterangan', type: 'textarea', required: true },
+                { name: 'bukti_nota', label: 'Upload Bukti/Nota', type: 'file', required: true }
+            ]
+        },
+        {
+            formId: 'F-04', formName: 'Cash Advance (Kasbon)',
+            approvalFlow: ['FINANCE', 'GM'],
+            fields: [
+                { name: 'nominal', label: 'Nominal Kasbon (Rp)', type: 'number', required: true },
+                { name: 'keperluan', label: 'Keperluan Detail', type: 'textarea', required: true },
+                { name: 'rencana_pelunasan', label: 'Rencana Pelunasan', type: 'text', required: true }
+            ]
+        },
+        {
+            formId: 'F-05', formName: 'Budget Entertain',
+            approvalFlow: ['SPV', 'FINANCE', 'GM'],
+            fields: [
+                { name: 'nama_klien', label: 'Nama Klien/Toko', type: 'text', required: true },
+                { name: 'tujuan_entertain', label: 'Tujuan Entertain', type: 'textarea', required: true },
+                { name: 'estimasi_budget', label: 'Estimasi Budget (Rp)', type: 'number', required: true },
+                { name: 'tanggal_pelaksanaan', label: 'Tanggal Pelaksanaan', type: 'date', required: true }
+            ]
+        },
+        {
+            formId: 'F-06', formName: 'Peminjaman Inventaris',
+            approvalFlow: ['SPV', 'HRD'],
+            fields: [
+                { name: 'nama_barang', label: 'Nama Barang/Inventaris', type: 'text', required: true },
+                { name: 'tanggal_pinjam', label: 'Tanggal Pinjam', type: 'date', required: true },
+                { name: 'tanggal_kembali', label: 'Rencana Tanggal Kembali', type: 'date', required: true },
+                { name: 'keperluan', label: 'Keperluan', type: 'textarea', required: true }
+            ]
+        },
+        {
+            formId: 'F-07', formName: 'Permintaan Barang',
+            approvalFlow: ['SPV', 'HRD'],
+            fields: [
+                { name: 'nama_barang', label: 'Nama Barang', type: 'text', required: true },
+                { name: 'jumlah', label: 'Jumlah', type: 'number', required: true },
+                { name: 'keperluan', label: 'Keperluan/Alasan', type: 'textarea', required: true }
+            ]
+        },
+        {
+            formId: 'F-08', formName: 'Cuti / Izin',
+            approvalFlow: ['SPV', 'HRD'],
+            fields: [
+                { name: 'jenis_cuti', label: 'Jenis Cuti', type: 'select', options: ['Cuti Tahunan', 'Cuti Khusus', 'Cuti Setengah Hari', 'Izin'], required: true },
+                { name: 'tanggal_mulai', label: 'Tanggal Mulai', type: 'date', required: true },
+                { name: 'tanggal_selesai', label: 'Tanggal Selesai', type: 'date', required: true },
+                { name: 'alasan', label: 'Alasan Cuti/Izin', type: 'textarea', required: true },
+                { name: 'alamat_selama_cuti', label: 'Alamat & No HP Selama Cuti', type: 'text', required: false }
+            ]
+        },
+        {
+            formId: 'F-09', formName: 'Lembur',
+            approvalFlow: ['SPV', 'HRD'],
+            fields: [
+                { name: 'tanggal_lembur', label: 'Tanggal Lembur', type: 'date', required: true },
+                { name: 'jam_mulai', label: 'Jam Mulai', type: 'text', required: true },
+                { name: 'jam_selesai', label: 'Jam Selesai', type: 'text', required: true },
+                { name: 'alasan_lembur', label: 'Alasan/Pekerjaan yang Dikerjakan', type: 'textarea', required: true }
+            ]
+        },
+        {
+            formId: 'F-10', formName: 'Perintah Lembur',
+            approvalFlow: ['HRD'],
+            fields: [
+                { name: 'nik_karyawan_target', label: 'NIK Karyawan yang Diperintah', type: 'text', required: true },
+                { name: 'tanggal_lembur', label: 'Tanggal Lembur', type: 'date', required: true },
+                { name: 'jam_mulai', label: 'Jam Mulai', type: 'text', required: true },
+                { name: 'jam_selesai', label: 'Jam Selesai', type: 'text', required: true },
+                { name: 'pekerjaan', label: 'Pekerjaan yang Harus Diselesaikan', type: 'textarea', required: true }
+            ]
+        },
+        {
+            formId: 'F-11', formName: 'Pemenuhan Karyawan',
+            approvalFlow: ['GM', 'HRD'],
+            fields: [
+                { name: 'posisi_dibutuhkan', label: 'Posisi yang Dibutuhkan', type: 'text', required: true },
+                { name: 'divisi', label: 'Divisi', type: 'text', required: true },
+                { name: 'jumlah_dibutuhkan', label: 'Jumlah Dibutuhkan', type: 'number', required: true },
+                { name: 'alasan_kebutuhan', label: 'Alasan Kebutuhan', type: 'textarea', required: true }
+            ]
+        },
+        {
+            formId: 'F-12', formName: 'Surat Peringatan',
+            approvalFlow: ['GM', 'HRD'],
+            fields: [
+                { name: 'nik_karyawan_target', label: 'NIK Karyawan Bersangkutan', type: 'text', required: true },
+                { name: 'jenis_sp', label: 'Jenis SP', type: 'select', options: ['SP 1', 'SP 2', 'SP 3'], required: true },
+                { name: 'pelanggaran', label: 'Uraian Pelanggaran', type: 'textarea', required: true },
+                { name: 'dasar_aturan', label: 'Dasar Aturan yang Dilanggar', type: 'text', required: false }
+            ]
+        },
+        {
+            formId: 'F-13', formName: 'Evaluasi Karyawan',
+            approvalFlow: ['SPV', 'GM', 'HRD'],
+            fields: [
+                { name: 'nik_karyawan_target', label: 'NIK Karyawan yang Dievaluasi', type: 'text', required: true },
+                { name: 'periode_evaluasi', label: 'Periode Evaluasi', type: 'text', required: true },
+                { name: 'nilai_kinerja', label: 'Nilai Kinerja', type: 'select', options: ['Sangat Baik', 'Baik', 'Cukup', 'Kurang'], required: true },
+                { name: 'catatan_evaluasi', label: 'Catatan Evaluasi', type: 'textarea', required: true }
+            ]
+        }
+    ];
+
+    // ============================================================
+    // GLOBAL STATE
+    // ============================================================
+    let currentUser = null;       // { nik, username, nama, role, divisi, sisaCuti, joinDate, ... }
+    let availableForms = [];      // daftar 13 formConfig dari backend (get_forms)
+    let myHistoryData = [];       // riwayat pengajuan milik user yang login
+    let pendingApprovalData = []; // antrean approval untuk role user yang login
+    let cutiHistoryData = [];     // riwayat pemakaian cuti (untuk page Sisa Cuti)
+    let broadcastHistoryData = []; // riwayat broadcast (untuk page HRD Broadcast)
+
+    // Builder field counter - dipakai untuk generate id unik tiap baris field di modal Form Builder
+    let fbFieldRowCounter = 0;
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        checkAuth();
+        attachStaticEventListeners();
+    });
+
+    // ============================================================
+    // UTILITY: FETCH API (ANTI-CORS)
+    // text/plain mencegah browser mengirim OPTIONS preflight request,
+    // karena GAS menangani preflight dengan buruk secara default.
+    // ============================================================
+    async function fetchAPI(payload) {
+        try {
+            const response = await fetch(GAS_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) {
+                return { status: 'error', success: false, message: 'Server merespons dengan HTTP ' + response.status };
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('API Fetch Error:', error);
+            return { status: 'error', success: false, message: 'Koneksi ke server gagal. Pastikan URL GAS benar dan terhubung ke internet.' };
+        }
+    }
+
+    // Helper kecil karena backend bisa membalas dengan format {status:"success"} ATAU {success:true} -
+    // bergantung action mana yang menangani. Daripada cek dua kondisi berulang di seluruh kode,
+    // satu fungsi ini jadi satu-satunya sumber kebenaran untuk "apakah request ini berhasil".
+    function isApiSuccess(res) {
+        return !!(res && (res.status === 'success' || res.success === true));
+    }
+
+    // ============================================================
+    // UTILITY: BASE64 CONVERTER
+    // ============================================================
+    const fileToBase64 = (file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve({
+            filename: file.name,
+            mimeType: file.type,
+            base64: reader.result // Mengandung prefix "data:image/jpeg;base64,..."
+        });
+        reader.onerror = (error) => reject(error);
+    });
+
+    // ============================================================
+    // UTILITY: TOAST NOTIFICATION
+    // ============================================================
+    let toastTimeoutId = null;
+    function showToast(message, isError) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = 'fixed bottom-6 right-6 left-6 sm:left-auto px-5 py-3.5 rounded-xl shadow-xl z-50 fade-in text-sm font-medium max-w-sm ' +
+            (isError ? 'bg-red-600 text-white' : 'bg-gray-900 text-white');
+        toast.classList.remove('hidden-view');
+        if (toastTimeoutId) clearTimeout(toastTimeoutId);
+        toastTimeoutId = setTimeout(() => toast.classList.add('hidden-view'), 4000);
+    }
+
+    // ============================================================
+    // UTILITY: FORMAT TANGGAL & ANGKA
+    // ============================================================
+    function formatTanggalIndo(dateStr) {
+        if (!dateStr) return '-';
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return dateStr; // fallback jika bukan format tanggal valid
+        return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function formatRupiah(value) {
+        const num = Number(value);
+        if (isNaN(num)) return value || '-';
+        return 'Rp ' + num.toLocaleString('id-ID');
+    }
+
+    // camelCase / snake_case -> "Label Terbaca", dipakai untuk render detail JSON generik
+    function formatLabelGeneric(key) {
+        const withSpaces = key.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1');
+        return withSpaces.charAt(0).toUpperCase() + withSpaces.slice(1).trim();
+    }
+
+    // ============================================================
+    // MODULE: AUTHENTICATION & RBAC
+    // ============================================================
+    function checkAuth() {
+        const stored = localStorage.getItem('erp_userData');
+        if (stored) {
+            try {
+                currentUser = JSON.parse(stored);
+                renderAppShell();
+            } catch (err) {
+                localStorage.removeItem('erp_userData');
+                showLoginView();
+            }
+        } else {
+            showLoginView();
+        }
+    }
+
+    function showLoginView() {
+        document.getElementById('login-view').classList.remove('hidden-view');
+        document.getElementById('app-view').classList.add('hidden-view');
+    }
+
+    async function handleLogin(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btn-login');
+        const btnText = document.getElementById('btn-login-text');
+        const btnSpinner = document.getElementById('btn-login-spinner');
+        const errBox = document.getElementById('login-error');
+
+        btn.disabled = true;
+        btnText.textContent = 'MEMVALIDASI...';
+        btnSpinner.classList.remove('hidden-view');
+        errBox.classList.add('hidden-view');
+
+        const payload = {
+            action: 'login',
+            username: document.getElementById('login-username').value.trim(),
+            password: document.getElementById('login-password').value.trim()
+        };
+
+        try {
+            const res = await fetchAPI(payload);
+
+            if (isApiSuccess(res)) {
+                const userObj = res.user || res.userData || res.data;
+                if (!userObj) {
+                    errBox.textContent = 'Login berhasil tapi data user tidak ditemukan di respons server.';
+                    errBox.classList.remove('hidden-view');
+                } else {
+                    localStorage.setItem('erp_userData', JSON.stringify(userObj));
+                    currentUser = userObj;
+                    renderAppShell();
+                }
+            } else {
+                errBox.textContent = res.message || 'Login gagal. Periksa kembali NIK/Password.';
+                errBox.classList.remove('hidden-view');
+            }
+        } catch (err) {
+            errBox.textContent = 'Terjadi kesalahan: ' + err.message;
+            errBox.classList.remove('hidden-view');
+        } finally {
+            btn.disabled = false;
+            btnText.textContent = 'MASUK KE PORTAL';
+            btnSpinner.classList.add('hidden-view');
+        }
+    }
+
+    function handleLogout() {
+        localStorage.removeItem('erp_userData');
+        window.location.reload();
+    }
+
+    // ============================================================
+    // RENDER APP SHELL - dipanggil sekali setelah login sukses
+    // (atau saat checkAuth menemukan sesi tersimpan)
+    // ============================================================
+    function renderAppShell() {
+        document.getElementById('login-view').classList.add('hidden-view');
+        document.getElementById('app-view').classList.remove('hidden-view');
+
+        const displayName = currentUser.nama || currentUser.username || 'User';
+        document.getElementById('ui-initial').textContent = displayName.charAt(0).toUpperCase();
+        document.getElementById('ui-name').textContent = displayName;
+        document.getElementById('welcome-name').textContent = displayName;
+        document.getElementById('ui-role-divisi').textContent = (currentUser.role || '-') + ' | ' + (currentUser.divisi || '-');
+        document.getElementById('ui-cuti').textContent = currentUser.sisaCuti != null ? currentUser.sisaCuti : '0';
+
+        // ---- RBAC Sidebar Logic ----
+        // "Area Manajemen" (antrean approval) tampil untuk SEMUA role selain SALES murni,
+        // karena approvalFlow per form bisa melibatkan SPV/GM/FINANCE/HRD dalam kombinasi apapun -
+        // jadi siapapun yang rolenya termasuk salah satu approver berpotensi punya antrean.
+        const role = (currentUser.role || '').toUpperCase();
+        if (MANAGEMENT_ROLES.indexOf(role) !== -1) {
+            document.getElementById('menu-manajemen').classList.remove('hidden-view');
+        } else {
+            document.getElementById('menu-manajemen').classList.add('hidden-view');
+        }
+
+        if (role === 'HRD') {
+            document.getElementById('menu-hrd').classList.remove('hidden-view');
+        } else {
+            document.getElementById('menu-hrd').classList.add('hidden-view');
+        }
+
+        // ---- Inisialisasi state sidebar sesuai ukuran layar saat ini ----
+        // Penting dipanggil di sini (bukan hanya saat resize) supaya user
+        // yang login langsung dari HP tidak melihat sidebar menutupi
+        // seluruh layar di percobaan pertama sebelum sempat resize apapun.
+        handleViewportResize();
+
+        // ---- Load data awal ----
+        navigate('dashboard');
+        fetchFormConfigs().then(() => {
+            // Approval flow preview & kasbon check butuh availableForms sudah terisi,
+            // makanya fetchDashboardData dipanggil SETELAH fetchFormConfigs selesai.
+            fetchDashboardData();
+        });
+        fetchAnnouncements();
+    }
+
+    // ============================================================
+    // NAVIGASI ANTAR PAGE (SPA routing sederhana berbasis show/hide)
+    // ============================================================
+    const PAGE_TITLES = {
+        'dashboard': 'Dashboard & Ikhtisar',
+        'sisa-cuti': 'Sisa Cuti Saya',
+        'pengajuan': 'Buat Pengajuan Baru',
+        'riwayat': 'Riwayat Pengajuan Saya',
+        'approval': 'Antrean Persetujuan (Manajemen)',
+        'hrd-form-builder': 'Konfigurasi Form Builder',
+        'hrd-broadcast': 'Sistem Broadcast Pengumuman'
+    };
+
+    // ============================================================
+    // MODULE: SIDEBAR TOGGLE (Mobile overlay + Desktop collapse)
+    // Perilaku berbeda tergantung lebar layar:
+    //   - Mobile (<768px): sidebar default tersembunyi, toggle
+    //     menampilkan/menyembunyikannya sebagai overlay di atas
+    //     konten (slide-in dari kiri + backdrop gelap).
+    //   - Desktop (>=768px): sidebar default tampil mendampingi
+    //     konten, toggle MENYUSUTKAN lebarnya jadi 0 (collapse)
+    //     supaya konten utama mendapat ruang lebih lega.
+    // Breakpoint 768px sengaja disamakan dengan breakpoint `md:`
+    // Tailwind supaya konsisten dengan kelas-kelas responsive lain.
+    // ============================================================
+    const MOBILE_BREAKPOINT = 768;
+    let isSidebarCollapsedDesktop = false; // hanya relevan saat layar desktop
+
+    function isMobileViewport() {
+        return window.innerWidth < MOBILE_BREAKPOINT;
+    }
+
+    function openSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+
+        if (isMobileViewport()) {
+            sidebar.classList.remove('-translate-x-full');
+            backdrop.classList.remove('hidden-view');
+        } else {
+            sidebar.classList.remove('md:w-0', 'md:opacity-0', 'md:overflow-hidden', 'md:border-r-0');
+            sidebar.classList.add('md:w-64');
+            isSidebarCollapsedDesktop = false;
+        }
+    }
+
+    function closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+
+        if (isMobileViewport()) {
+            sidebar.classList.add('-translate-x-full');
+            backdrop.classList.add('hidden-view');
+        } else {
+            sidebar.classList.remove('md:w-64');
+            sidebar.classList.add('md:w-0', 'md:opacity-0', 'md:overflow-hidden', 'md:border-r-0');
+            isSidebarCollapsedDesktop = true;
+        }
+    }
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+
+        if (isMobileViewport()) {
+            const isCurrentlyHidden = sidebar.classList.contains('-translate-x-full');
+            if (isCurrentlyHidden) openSidebar(); else closeSidebar();
+        } else {
+            if (isSidebarCollapsedDesktop) openSidebar(); else closeSidebar();
+        }
+    }
+
+    // Di mobile, sidebar harus otomatis tertutup setelah user memilih
+    // sebuah menu - tanpa ini, user harus klik 2x (pilih menu, lalu
+    // tutup sidebar manual) yang terasa janggal di pengalaman mobile.
+    function closeSidebarOnMobileAfterNavigate() {
+        if (isMobileViewport()) closeSidebar();
+    }
+
+    // Jika user resize window (misal rotasi tablet, atau resize browser
+    // desktop melewati breakpoint), reset state transform/width supaya
+    // tidak terjebak di kondisi visual yang salah (contoh: sidebar
+    // collapsed di desktop lalu di-resize ke mobile, harus tetap bisa
+    // dibuka normal sebagai overlay, bukan ikut collapsed).
+    function handleViewportResize() {
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+
+        if (isMobileViewport()) {
+            sidebar.classList.remove('md:w-0', 'md:opacity-0', 'md:overflow-hidden', 'md:border-r-0', 'md:w-64');
+            if (!sidebar.classList.contains('-translate-x-full')) {
+                // sidebar sedang "terbuka" status desktop - pastikan dianggap tertutup saat masuk mode mobile
+                sidebar.classList.add('-translate-x-full');
+            }
+            backdrop.classList.add('hidden-view');
+        } else {
+            backdrop.classList.add('hidden-view');
+            sidebar.classList.remove('-translate-x-full');
+            if (isSidebarCollapsedDesktop) {
+                sidebar.classList.add('md:w-0', 'md:opacity-0', 'md:overflow-hidden', 'md:border-r-0');
+            } else {
+                sidebar.classList.add('md:w-64');
+            }
+        }
+    }
+
+    function navigate(pageId) {
+        document.querySelectorAll('.page-section').forEach((el) => el.classList.add('hidden-view'));
+        const targetPage = document.getElementById('page-' + pageId);
+        if (targetPage) targetPage.classList.remove('hidden-view');
+
+        document.getElementById('header-title').textContent = PAGE_TITLES[pageId] || 'Portal Internal';
+
+        // Highlight nav button aktif
+        document.querySelectorAll('.nav-btn').forEach((btn) => {
+            if (btn.getAttribute('data-page') === pageId) {
+                btn.classList.add('bg-corporate-light', 'text-corporate', 'font-bold');
+            } else {
+                btn.classList.remove('bg-corporate-light', 'text-corporate', 'font-bold');
+            }
+        });
+
+        // Lazy-load data spesifik halaman saat dibuka, supaya data selalu fresh
+        if (pageId === 'sisa-cuti') fetchCutiHistory();
+        if (pageId === 'riwayat') fetchDashboardData();
+        if (pageId === 'approval') fetchDashboardData();
+        if (pageId === 'hrd-form-builder') renderFormBuilderList();
+        if (pageId === 'hrd-broadcast') fetchBroadcastHistory();
+
+        closeSidebarOnMobileAfterNavigate();
+    }
+
+    // ============================================================
+    // EVENT LISTENERS STATIS (elemen yang selalu ada di DOM sejak awal,
+    // berbeda dengan elemen dinamis yang listenernya dipasang ulang
+    // setiap kali di-render seperti baris tabel approval/riwayat)
+    // ============================================================
+    function attachStaticEventListeners() {
+        document.getElementById('login-form').addEventListener('submit', handleLogin);
+        document.getElementById('btn-logout').addEventListener('click', handleLogout);
+
+        document.querySelectorAll('.nav-btn').forEach((btn) => {
+            btn.addEventListener('click', () => navigate(btn.getAttribute('data-page')));
+        });
+
+        document.getElementById('btn-toggle-sidebar').addEventListener('click', toggleSidebar);
+        document.getElementById('btn-close-sidebar').addEventListener('click', closeSidebar);
+        document.getElementById('sidebar-backdrop').addEventListener('click', closeSidebar);
+        window.addEventListener('resize', handleViewportResize);
+
+        document.getElementById('btn-refresh-approval').addEventListener('click', fetchDashboardData);
+
+        document.getElementById('form-selector').addEventListener('change', renderDynamicForm);
+        document.getElementById('dynamic-form').addEventListener('submit', submitDynamicForm);
+
+        document.getElementById('btn-close-detail').addEventListener('click', closeDetailModal);
+        document.getElementById('modal-detail').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeDetailModal();
+        });
+
+        document.getElementById('btn-cancel-reject').addEventListener('click', closeRejectModal);
+        document.getElementById('btn-confirm-reject').addEventListener('click', executeReject);
+        document.getElementById('modal-reject').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeRejectModal();
+        });
+
+        document.getElementById('broadcast-type').addEventListener('change', toggleBroadcastTargetField);
+        document.getElementById('broadcast-form').addEventListener('submit', submitBroadcast);
+        document.getElementById('btn-refresh-broadcast-history').addEventListener('click', fetchBroadcastHistory);
+
+        document.getElementById('btn-fb-add-approver').addEventListener('click', addFbApprover);
+        document.getElementById('btn-fb-add-field').addEventListener('click', addFbField);
+        document.getElementById('btn-save-form-builder').addEventListener('click', saveFormBuilder);
+        document.getElementById('btn-cancel-form-builder').addEventListener('click', closeFormBuilderModal);
+        document.getElementById('btn-close-form-builder').addEventListener('click', closeFormBuilderModal);
+        document.getElementById('modal-form-builder').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeFormBuilderModal();
+        });
+
+        document.getElementById('btn-export').addEventListener('click', executeExport);
+    }
+
+    // ============================================================
+    // MODULE: DYNAMIC FORM RENDERER
+    // ============================================================
+    async function fetchFormConfigs() {
+        const res = await fetchAPI({ action: 'get_forms', role: currentUser.role });
+
+        if (isApiSuccess(res) && Array.isArray(res.data) && res.data.length > 0) {
+            availableForms = res.data;
+        } else {
+            // Backend belum mengembalikan data valid - pakai 13 form ISO default
+            availableForms = DEFAULT_FORM_CONFIGS;
+        }
+
+        renderFormSelectorOptions();
+    }
+
+    function renderFormSelectorOptions() {
+        const selector = document.getElementById('form-selector');
+        selector.innerHTML = '<option value="">-- Silakan Pilih Form --</option>';
+        availableForms.forEach((f) => {
+            selector.innerHTML += '<option value="' + f.formId + '">' + f.formName + '</option>';
+        });
+    }
+
+    // Render visual step-by-step urutan approval (preview di atas form, sebelum submit)
+    function renderApprovalFlowPreview(approvalFlow) {
+        const container = document.getElementById('approval-flow-preview');
+
+        if (!approvalFlow || approvalFlow.length === 0) {
+            container.classList.add('hidden-view');
+            return;
+        }
+
+        let stepsHtml = '<p class="text-xs font-bold text-gray-400 uppercase mb-2">Urutan Persetujuan</p><div class="flex items-center">';
+        approvalFlow.forEach((role, idx) => {
+            stepsHtml +=
+                '<div class="step-line flex-1 flex flex-col items-center relative z-10">' +
+                    '<div class="w-8 h-8 rounded-full bg-corporate-light text-corporate font-bold text-xs flex items-center justify-center border-2 border-corporate bg-white">' + (idx + 1) + '</div>' +
+                    '<p class="text-xs font-semibold text-gray-600 mt-1">' + role + '</p>' +
+                '</div>';
+        });
+        stepsHtml += '</div>';
+
+        container.innerHTML = stepsHtml;
+        container.classList.remove('hidden-view');
+    }
+
+    // Cek apakah masa kerja user >= 1 tahun, dipakai khusus validasi form Kasbon
+    function hasMinimumOneYearTenure() {
+        if (!currentUser.joinDate) return true; // jika data joinDate tidak ada, jangan blokir (fail-open agar tidak salah blokir karena data kosong)
+        const joinD = new Date(currentUser.joinDate);
+        if (isNaN(joinD.getTime())) return true;
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+        return joinD <= oneYearAgo;
+    }
+
+    function isKasbonForm(formConfig) {
+        const fname = formConfig.formName.toLowerCase();
+        return fname.includes('kasbon') || fname.includes('cash advance');
+    }
+
+    function renderDynamicForm() {
+        const formId = document.getElementById('form-selector').value;
+        const formEl = document.getElementById('dynamic-form');
+        const fieldsArea = document.getElementById('dynamic-fields-container');
+        const kasbonWarning = document.getElementById('kasbon-warning');
+        const kasbonBlocked = document.getElementById('kasbon-blocked');
+        const submitBtn = document.getElementById('btn-submit-form');
+
+        if (!formId) {
+            formEl.classList.add('hidden-view');
+            kasbonWarning.classList.add('hidden-view');
+            kasbonBlocked.classList.add('hidden-view');
+            document.getElementById('approval-flow-preview').classList.add('hidden-view');
+            return;
+        }
+
+        const formConfig = availableForms.find((f) => f.formId === formId);
+        if (!formConfig) {
+            showToast('Konfigurasi form tidak ditemukan.', true);
+            return;
+        }
+
+        renderApprovalFlowPreview(formConfig.approvalFlow);
+        formEl.classList.remove('hidden-view');
+        fieldsArea.innerHTML = '';
+
+        // ---- Validasi khusus Kasbon: masa kerja >= 1 tahun ----
+        if (isKasbonForm(formConfig)) {
+            kasbonWarning.classList.remove('hidden-view');
+
+            if (!hasMinimumOneYearTenure()) {
+                kasbonBlocked.classList.remove('hidden-view');
+                fieldsArea.innerHTML = '';
+                submitBtn.classList.add('hidden-view');
+                return;
+            } else {
+                kasbonBlocked.classList.add('hidden-view');
+            }
+        } else {
+            kasbonWarning.classList.add('hidden-view');
+            kasbonBlocked.classList.add('hidden-view');
+        }
+
+        submitBtn.classList.remove('hidden-view');
+
+        // ---- Render input fields sesuai JSON config (generik, tidak hardcode field apapun) ----
+        formConfig.fields.forEach((field) => {
+            const wrapper = document.createElement('div');
+            const commonClass = 'w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-corporate outline-none bg-white';
+            const req = field.required ? 'required' : '';
+            let inputHTML = '';
+
+            if (field.type === 'textarea') {
+                inputHTML = '<textarea id="dyn_' + field.name + '" ' + req + ' rows="3" class="' + commonClass + '" placeholder="Isi ' + field.label + '..."></textarea>';
+            } else if (field.type === 'file') {
+                inputHTML = '<input type="file" id="dyn_' + field.name + '" ' + req + ' accept=".jpg,.jpeg,.png,.pdf" class="' + commonClass + '">';
+            } else if (field.type === 'select') {
+                const opts = (field.options || []).map((o) => '<option value="' + o + '">' + o + '</option>').join('');
+                inputHTML = '<select id="dyn_' + field.name + '" ' + req + ' class="' + commonClass + '"><option value="">- Pilih -</option>' + opts + '</select>';
+            } else {
+                // text, number, date - semuanya pakai <input type="...">
+                inputHTML = '<input type="' + field.type + '" id="dyn_' + field.name + '" ' + req + ' class="' + commonClass + '">';
+            }
+
+            wrapper.innerHTML =
+                '<label class="block text-sm font-bold text-gray-700 mb-1">' + field.label + ' ' + (field.required ? '<span class="text-red-500">*</span>' : '') + '</label>' +
+                inputHTML;
+            fieldsArea.appendChild(wrapper);
+        });
+    }
+
+    async function submitDynamicForm(e) {
+        e.preventDefault();
+        const formId = document.getElementById('form-selector').value;
+        const formConfig = availableForms.find((f) => f.formId === formId);
+        if (!formConfig) {
+            showToast('Pilih jenis form terlebih dahulu.', true);
+            return;
+        }
+
+        const btn = document.getElementById('btn-submit-form');
+        const btnText = document.getElementById('btn-submit-form-text');
+        const btnSpinner = document.getElementById('btn-submit-form-spinner');
+
+        btn.disabled = true;
+        btnText.textContent = 'MENGUNGGAH...';
+        btnSpinner.classList.remove('hidden-view');
+
+        try {
+            const details = {};
+            const attachments = [];
+
+            // Loop SEMUA field sesuai config (generik) untuk mengumpulkan nilai & konversi file ke Base64
+            for (const field of formConfig.fields) {
+                const el = document.getElementById('dyn_' + field.name);
+                if (!el) continue;
+
+                if (field.type === 'file') {
+                    if (el.files && el.files.length > 0) {
+                        const b64 = await fileToBase64(el.files[0]);
+                        attachments.push(b64);
+                        details[field.name] = '[Attached: ' + b64.filename + ']';
+                    } else if (field.required) {
+                        throw new Error('File untuk field "' + field.label + '" wajib diunggah.');
+                    }
+                } else {
+                    details[field.name] = el.value;
+                }
+            }
+
+            const payload = {
+                action: 'submit_pengajuan',
+                nik: currentUser.nik,
+                nama: currentUser.nama || currentUser.username,
+                role: currentUser.role,
+                formId: formConfig.formId,
+                formName: formConfig.formName,
+                approvalFlow: formConfig.approvalFlow,
+                details: details,
+                attachments: attachments
+            };
+
+            const res = await fetchAPI(payload);
+
+            if (isApiSuccess(res)) {
+                showToast(res.message || 'Pengajuan berhasil dikirim!', false);
+                document.getElementById('form-selector').value = '';
+                renderDynamicForm();
+                navigate('riwayat');
+            } else {
+                showToast(res.message || 'Gagal mengirim pengajuan.', true);
+            }
+        } catch (err) {
+            showToast('Terjadi kesalahan: ' + err.message, true);
+        } finally {
+            btn.disabled = false;
+            btnText.textContent = 'KIRIM PENGAJUAN';
+            btnSpinner.classList.add('hidden-view');
+        }
+    }
+
+    // ============================================================
+    // HELPER: SEQUENTIAL APPROVAL LOGIC
+    // Kontrak data yang diasumsikan per item riwayat/approval dari backend:
+    //   item.approvalFlow  = ["SPV", "GM"]               (urutan role approver)
+    //   item.approvalSteps = ["APPROVED", "PENDING"]     (status tiap langkah, paralel index dgn approvalFlow)
+    //   item.statusFinal   = "PROSES" | "APPROVED FINAL" | "REJECTED"
+    // Jika approvalSteps tidak dikirim backend, fallback FAIL-SAFE: anggap
+    // langkah pertama yang aktif (lebih baik tampil-tapi-mungkin-keliru
+    // daripada sembunyi-total dan approver tidak pernah melihat tugasnya).
+    // ============================================================
+    function getActiveStepIndex(item) {
+        if (!Array.isArray(item.approvalSteps) || item.approvalSteps.length === 0) {
+            return 0; // fallback: anggap langkah pertama yang aktif
+        }
+        for (let i = 0; i < item.approvalSteps.length; i++) {
+            const stepStatus = (item.approvalSteps[i] || '').toString().toUpperCase();
+            if (stepStatus === 'REJECTED') return -1; // siklus sudah berhenti, tidak ada langkah aktif
+            if (stepStatus !== 'APPROVED') return i; // langkah pertama yang BUKAN approved = langkah aktif
+        }
+        return -1; // semua langkah sudah approved, tidak ada langkah aktif lagi (sudah final)
+    }
+
+    function getActiveApproverRole(item) {
+        const idx = getActiveStepIndex(item);
+        if (idx === -1 || !Array.isArray(item.approvalFlow)) return null;
+        return (item.approvalFlow[idx] || '').toString().toUpperCase();
+    }
+
+    // Item ini WAJIB tampil di antrean approval milik currentUser HANYA JIKA
+    // langkah yang sedang aktif persis cocok dengan role yang login -
+    // bukan sekadar "role ini ADA di approvalFlow manapun posisinya".
+    function isPendingForCurrentRole(item) {
+        const activeRole = getActiveApproverRole(item);
+        if (!activeRole) return false;
+        return activeRole === (currentUser.role || '').toUpperCase();
+    }
+
+    // Render step indicator visual (dipakai di Riwayat & Approval & Modal Detail)
+    function renderApprovalProgressHTML(item) {
+        if (!Array.isArray(item.approvalFlow) || item.approvalFlow.length === 0) {
+            return '<span class="text-xs text-gray-400">-</span>';
+        }
+
+        const activeIdx = getActiveStepIndex(item);
+        let html = '<div class="flex items-center gap-1">';
+
+        item.approvalFlow.forEach((role, idx) => {
+            const stepStatus = Array.isArray(item.approvalSteps) ? (item.approvalSteps[idx] || 'PENDING').toUpperCase() : 'PENDING';
+            let circleClass = 'bg-gray-200 text-gray-500'; // default: belum giliran
+            let icon = idx + 1;
+
+            if (stepStatus === 'APPROVED') {
+                circleClass = 'bg-green-500 text-white';
+                icon = '<i class="fa-solid fa-check text-[10px]"></i>';
+            } else if (stepStatus === 'REJECTED') {
+                circleClass = 'bg-red-500 text-white';
+                icon = '<i class="fa-solid fa-xmark text-[10px]"></i>';
+            } else if (idx === activeIdx) {
+                circleClass = 'bg-yellow-400 text-white ring-2 ring-yellow-200';
+            }
+
+            html +=
+                '<div class="flex flex-col items-center" title="' + role + ': ' + stepStatus + '">' +
+                    '<div class="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center ' + circleClass + '">' + icon + '</div>' +
+                    '<span class="text-[10px] text-gray-400 mt-0.5">' + role + '</span>' +
+                '</div>';
+
+            if (idx < item.approvalFlow.length - 1) {
+                html += '<div class="w-3 h-0.5 bg-gray-200 mb-3"></div>';
+            }
+        });
+
+        html += '</div>';
+        return html;
+    }
+
+    // ============================================================
+    // MODULE: DASHBOARD DATA FETCHING
+    // ============================================================
+    async function fetchDashboardData() {
+        const res = await fetchAPI({ action: 'get_dashboard', nik: currentUser.nik, role: currentUser.role });
+
+        myHistoryData = (isApiSuccess(res) && Array.isArray(res.history)) ? res.history : [];
+        const rawApprovals = (isApiSuccess(res) && Array.isArray(res.approvals)) ? res.approvals : [];
+
+        // FILTER KRITIS: backend mungkin mengirim semua item yang melibatkan
+        // role ini di approvalFlow manapun posisinya - frontend WAJIB menyaring
+        // ulang supaya hanya item yang GILIRANNYA SEDANG AKTIF untuk role ini
+        // yang benar-benar muncul di antrean (sesuai BRD poin 1).
+        pendingApprovalData = rawApprovals.filter(isPendingForCurrentRole);
+
+        renderDashboardStats();
+        renderRiwayatTable();
+        renderApprovalTable();
+        updateApprovalBadge();
+    }
+
+    function renderDashboardStats() {
+        let pending = 0, approved = 0;
+        myHistoryData.forEach((item) => {
+            const status = (item.statusFinal || item.status || '').toUpperCase();
+            if (status === 'PENDING' || status === 'PROSES' || status === 'PROCESS') pending++;
+            if (status === 'APPROVED FINAL' || status === 'APPROVED') approved++;
+        });
+        document.getElementById('stat-pending').textContent = pending;
+        document.getElementById('stat-approved').textContent = approved;
+    }
+
+    function renderRiwayatTable() {
+        const tbody = document.getElementById('table-riwayat');
+
+        if (myHistoryData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-sm text-gray-500">Belum ada riwayat pengajuan.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = myHistoryData.map((item) => {
+            const status = (item.statusFinal || item.status || '-').toString();
+            const statusClass = status.toUpperCase().includes('REJECT') ? 'text-red-600' : (status.toUpperCase().includes('APPROVED FINAL') ? 'text-green-600' : 'text-yellow-600');
+            return (
+                '<tr class="hover:bg-gray-50 border-b detail-row" data-item-id="' + (item.id || item.idTransaksi) + '" data-item-source="history">' +
+                    '<td class="p-4 text-sm font-bold">' + (item.id || item.idTransaksi || '-') + '</td>' +
+                    '<td class="p-4 text-sm">' + (item.formName || item.jenis || '-') + '</td>' +
+                    '<td class="p-4 text-sm text-gray-500">' + formatTanggalIndo(item.tgl || item.tanggal) + '</td>' +
+                    '<td class="p-4">' + renderApprovalProgressHTML(item) + '</td>' +
+                    '<td class="p-4 text-sm font-semibold ' + statusClass + '">' + status + '</td>' +
+                '</tr>'
+            );
+        }).join('');
+
+        attachDetailRowListeners();
+    }
+
+    function renderApprovalTable() {
+        const tbody = document.getElementById('table-approval');
+
+        if (pendingApprovalData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-sm text-gray-500">Tidak ada pengajuan yang menunggu tindakan Anda saat ini.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = pendingApprovalData.map((item) => {
+            const itemId = item.id || item.idTransaksi;
+            let detailPreviewHTML = '';
+            if (item.details || item.detail) {
+                const detailObj = item.details || item.detail;
+                const previewKeys = Object.keys(detailObj).slice(0, 2); // preview 2 field saja di tabel, detail lengkap ada di modal
+                detailPreviewHTML = previewKeys.map((k) =>
+                    '<span class="block text-xs"><b class="text-gray-700">' + formatLabelGeneric(k) + ':</b> ' + detailObj[k] + '</span>'
+                ).join('');
+                if (Object.keys(detailObj).length > 2) {
+                    detailPreviewHTML += '<span class="text-xs text-blue-500 italic">+' + (Object.keys(detailObj).length - 2) + ' field lainnya</span>';
+                }
+            }
+
+            return (
+                '<tr class="hover:bg-red-50 border-b">' +
+                    '<td class="p-4">' +
+                        '<div class="font-bold text-sm text-gray-900">' + (item.nama || '-') + '</div>' +
+                        '<div class="text-xs text-gray-500">' + (item.nik || '-') + '</div>' +
+                    '</td>' +
+                    '<td class="p-4">' +
+                        '<div class="font-bold text-sm text-corporate">' + (item.formName || item.jenis || '-') + '</div>' +
+                        '<div class="text-xs text-gray-500">' + formatTanggalIndo(item.tgl || item.tanggal) + '</div>' +
+                    '</td>' +
+                    '<td class="p-4 detail-row cursor-pointer hover:underline" data-item-id="' + itemId + '" data-item-source="approval" title="Klik untuk lihat detail lengkap">' + detailPreviewHTML + '</td>' +
+                    '<td class="p-4">' + renderApprovalProgressHTML(item) + '</td>' +
+                    '<td class="p-4 text-center space-y-2">' +
+                        '<button class="btn-approve w-full bg-green-500 text-white px-3 py-1.5 rounded-md text-xs font-bold hover:bg-green-600 shadow-sm" data-item-id="' + itemId + '"><i class="fa-solid fa-check mr-1"></i> Setujui</button>' +
+                        '<button class="btn-reject w-full bg-red-500 text-white px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-600 shadow-sm" data-item-id="' + itemId + '"><i class="fa-solid fa-xmark mr-1"></i> Tolak</button>' +
+                    '</td>' +
+                '</tr>'
+            );
+        }).join('');
+
+        attachApprovalRowListeners();
+        attachDetailRowListeners();
+    }
+
+    function updateApprovalBadge() {
+        const badge = document.getElementById('badge-approval-count');
+        if (pendingApprovalData.length > 0) {
+            badge.textContent = pendingApprovalData.length;
+            badge.classList.remove('hidden-view');
+        } else {
+            badge.classList.add('hidden-view');
+        }
+    }
+
+    // Event listener untuk baris tabel approval (tombol approve/reject) -
+    // dipasang ulang SETIAP KALI tabel di-render karena elemennya baru dibuat via innerHTML.
+    function attachApprovalRowListeners() {
+        document.querySelectorAll('.btn-approve').forEach((btn) => {
+            btn.addEventListener('click', () => processApprove(btn.getAttribute('data-item-id')));
+        });
+        document.querySelectorAll('.btn-reject').forEach((btn) => {
+            btn.addEventListener('click', () => openRejectModal(btn.getAttribute('data-item-id')));
+        });
+    }
+
+    // ============================================================
+    // MODULE: MODAL DETAIL PENGAJUAN
+    // Dipakai baik dari tabel Riwayat maupun tabel Approval - mencari
+    // item dari sumber data yang sesuai berdasarkan data-item-source.
+    // ============================================================
+    function attachDetailRowListeners() {
+        document.querySelectorAll('.detail-row').forEach((row) => {
+            row.addEventListener('click', () => {
+                const itemId = row.getAttribute('data-item-id');
+                const source = row.getAttribute('data-item-source');
+                const dataset = source === 'history' ? myHistoryData : pendingApprovalData;
+                const item = dataset.find((d) => (d.id || d.idTransaksi) === itemId);
+                if (item) openDetailModal(item);
+            });
+        });
+    }
+
+    function openDetailModal(item) {
+        const content = document.getElementById('modal-detail-content');
+        const detailObj = item.details || item.detail || {};
+
+        let fieldsHtml = '';
+        for (const key in detailObj) {
+            const value = detailObj[key];
+            const displayValue = Array.isArray(value) ? value.join(', ') : (value || '-');
+            fieldsHtml +=
+                '<div class="bg-gray-50 rounded-lg px-4 py-3">' +
+                    '<p class="text-xs text-gray-500">' + formatLabelGeneric(key) + '</p>' +
+                    '<p class="font-semibold text-gray-800 mt-0.5">' + displayValue + '</p>' +
+                '</div>';
+        }
+
+        content.innerHTML =
+            '<div class="bg-corporate-light border border-red-200 rounded-lg px-4 py-3">' +
+                '<p class="text-xs text-gray-500 font-mono">' + (item.id || item.idTransaksi || '-') + '</p>' +
+                '<p class="font-bold text-gray-900 text-lg mt-0.5">' + (item.formName || item.jenis || '-') + '</p>' +
+            '</div>' +
+            '<div class="bg-gray-50 rounded-lg px-4 py-3">' +
+                '<p class="text-xs text-gray-500">Pemohon</p>' +
+                '<p class="font-semibold text-gray-800 mt-0.5">' + (item.nama || '-') + (item.nik ? ' (' + item.nik + ')' : '') + '</p>' +
+            '</div>' +
+            fieldsHtml +
+            '<div class="bg-gray-50 rounded-lg px-4 py-3">' +
+                '<p class="text-xs text-gray-500 mb-2">Progress Approval</p>' +
+                renderApprovalProgressHTML(item) +
+            '</div>' +
+            (item.catatanReject ? '<div class="bg-red-50 border border-red-100 rounded-lg px-4 py-3"><p class="text-xs text-red-500">Alasan Penolakan</p><p class="font-semibold text-red-700 mt-0.5">' + item.catatanReject + '</p></div>' : '') +
+            '<p class="text-xs text-gray-400">' + formatTanggalIndo(item.tgl || item.tanggal) + '</p>';
+
+        document.getElementById('modal-detail').classList.remove('hidden-view');
+    }
+
+    function closeDetailModal() {
+        document.getElementById('modal-detail').classList.add('hidden-view');
+    }
+
+    // ============================================================
+    // MODULE: SEQUENTIAL APPROVAL ENGINE
+    // ============================================================
+    async function processApprove(txId) {
+        if (!confirm('Anda yakin menyetujui pengajuan ini dan meneruskannya ke rute berikutnya?')) return;
+
+        try {
+            const res = await fetchAPI({
+                action: 'process_approval',
+                idTransaksi: txId,
+                keputusan: 'APPROVE',
+                role: currentUser.role,
+                nik: currentUser.nik
+            });
+
+            if (isApiSuccess(res)) {
+                showToast(res.message || 'Pengajuan berhasil disetujui.', false);
+            } else {
+                showToast(res.message || 'Gagal memproses approval.', true);
+            }
+        } catch (err) {
+            showToast('Terjadi kesalahan: ' + err.message, true);
+        } finally {
+            fetchDashboardData();
+        }
+    }
+
+    function openRejectModal(txId) {
+        document.getElementById('reject-id').value = txId;
+        document.getElementById('reject-reason').value = '';
+        document.getElementById('reject-error').classList.add('hidden-view');
+        document.getElementById('modal-reject').classList.remove('hidden-view');
+    }
+
+    function closeRejectModal() {
+        document.getElementById('modal-reject').classList.add('hidden-view');
+    }
+
+    async function executeReject() {
+        const txId = document.getElementById('reject-id').value;
+        const note = document.getElementById('reject-reason').value.trim();
+        const errBox = document.getElementById('reject-error');
+
+        if (!note) {
+            errBox.textContent = 'Alasan penolakan wajib diisi.';
+            errBox.classList.remove('hidden-view');
+            return;
+        }
+
+        const btn = document.getElementById('btn-confirm-reject');
+        const btnText = document.getElementById('btn-confirm-reject-text');
+        const btnSpinner = document.getElementById('btn-confirm-reject-spinner');
+
+        btn.disabled = true;
+        btnText.textContent = 'MEMPROSES...';
+        btnSpinner.classList.remove('hidden-view');
+        errBox.classList.add('hidden-view');
+
+        try {
+            const res = await fetchAPI({
+                action: 'process_approval',
+                idTransaksi: txId,
+                keputusan: 'REJECT',
+                alasan: note,
+                role: currentUser.role,
+                nik: currentUser.nik
+            });
+
+            closeRejectModal();
+
+            if (isApiSuccess(res)) {
+                showToast(res.message || 'Pengajuan berhasil ditolak.', false);
+            } else {
+                showToast(res.message || 'Gagal menolak pengajuan.', true);
+            }
+        } catch (err) {
+            closeRejectModal();
+            showToast('Terjadi kesalahan: ' + err.message, true);
+        } finally {
+            btn.disabled = false;
+            btnText.textContent = 'Tolak Pengajuan';
+            btnSpinner.classList.add('hidden-view');
+            fetchDashboardData();
+        }
+    }
+
+    // ============================================================
+    // MODULE: SISA CUTI
+    // ============================================================
+    async function fetchCutiHistory() {
+        const tbody = document.getElementById('table-riwayat-cuti');
+        tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-gray-400">Memuat riwayat cuti...</td></tr>';
+
+        const res = await fetchAPI({ action: 'get_cuti_history', nik: currentUser.nik });
+
+        // Render kuota - utamakan data terbaru dari respons get_cuti_history,
+        // fallback ke data currentUser (hasil login) jika backend tidak mengirim field kuota.
+        const kuota = (isApiSuccess(res) && res.kuota) ? res.kuota : {};
+        document.getElementById('cuti-tahunan-detail').textContent = kuota.tahunan != null ? kuota.tahunan : (currentUser.sisaCuti != null ? currentUser.sisaCuti : '0');
+        document.getElementById('cuti-khusus-detail').textContent = kuota.khusus != null ? kuota.khusus : '0';
+        document.getElementById('cuti-akumulasi-detail').textContent = kuota.akumulasi != null ? kuota.akumulasi : '0';
+
+        cutiHistoryData = (isApiSuccess(res) && Array.isArray(res.data)) ? res.data : [];
+
+        if (cutiHistoryData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-sm text-gray-500">Belum ada riwayat penggunaan cuti.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = cutiHistoryData.map((item) => {
+            const status = (item.status || '-').toString();
+            const statusClass = status.toUpperCase().includes('REJECT') ? 'text-red-600' : (status.toUpperCase().includes('APPROVED') ? 'text-green-600' : 'text-yellow-600');
+            return (
+                '<tr class="hover:bg-gray-50 border-b">' +
+                    '<td class="p-4 text-sm">' + formatTanggalIndo(item.tanggal || item.tanggalMulai) + '</td>' +
+                    '<td class="p-4 text-sm font-medium">' + (item.jenis || '-') + '</td>' +
+                    '<td class="p-4 text-sm text-gray-500">' + (item.keterangan || '-') + '</td>' +
+                    '<td class="p-4 text-sm font-semibold ' + statusClass + '">' + status + '</td>' +
+                '</tr>'
+            );
+        }).join('');
+    }
+
+    // ============================================================
+    // MODULE: PENGUMUMAN (ditampilkan di Dashboard semua user)
+    // ============================================================
+    async function fetchAnnouncements() {
+        const container = document.getElementById('announcement-list');
+        const res = await fetchAPI({ action: 'get_announcements', nik: currentUser.nik, divisi: currentUser.divisi });
+
+        const announcements = (isApiSuccess(res) && Array.isArray(res.data)) ? res.data : [];
+
+        if (announcements.length === 0) {
+            container.innerHTML = '<p class="text-sm text-gray-400 italic">Belum ada pengumuman terbaru.</p>';
+            return;
+        }
+
+        container.innerHTML = announcements.map((item) => (
+            '<div class="border-l-4 border-corporate pl-4 py-1">' +
+                '<p class="font-bold text-sm text-gray-800">' + (item.title || '-') + '</p>' +
+                '<p class="text-sm text-gray-600 mt-1">' + (item.body || '-') + '</p>' +
+                (item.attachmentUrl ? '<a href="' + item.attachmentUrl + '" target="_blank" class="text-xs text-blue-500 hover:underline mt-1 inline-block"><i class="fa-solid fa-paperclip mr-1"></i>Lihat Lampiran</a>' : '') +
+                '<p class="text-xs text-gray-400 mt-1">' + formatTanggalIndo(item.tanggal || item.createdAt) + '</p>' +
+            '</div>'
+        )).join('');
+    }
+
+    // ============================================================
+    // MODULE: BROADCAST HRD
+    // ============================================================
+    function toggleBroadcastTargetField() {
+        const type = document.getElementById('broadcast-type').value;
+        const wrapper = document.getElementById('broadcast-specific-wrapper');
+        if (type === 'SPECIFIC') {
+            wrapper.classList.remove('hidden-view');
+        } else {
+            wrapper.classList.add('hidden-view');
+        }
+    }
+
+    async function submitBroadcast(e) {
+        e.preventDefault();
+
+        const btn = document.getElementById('btn-submit-broadcast');
+        const btnText = document.getElementById('btn-submit-broadcast-text');
+        const btnSpinner = document.getElementById('btn-submit-broadcast-spinner');
+
+        btn.disabled = true;
+        btnText.textContent = 'MENGIRIM...';
+        btnSpinner.classList.remove('hidden-view');
+
+        try {
+            const type = document.getElementById('broadcast-type').value;
+            const targetRaw = document.getElementById('broadcast-target').value.trim();
+            const fileInput = document.getElementById('broadcast-attachment');
+
+            let attachment = null;
+            if (fileInput.files && fileInput.files.length > 0) {
+                attachment = await fileToBase64(fileInput.files[0]);
+            }
+
+            const payload = {
+                action: 'submit_broadcast',
+                title: document.getElementById('broadcast-title').value.trim(),
+                body: document.getElementById('broadcast-body').value.trim(),
+                targetType: type,
+                target: type === 'SPECIFIC' ? targetRaw.split(',').map((t) => t.trim()).filter((t) => t.length > 0) : [],
+                attachment: attachment,
+                createdBy: currentUser.nama || currentUser.username
+            };
+
+            if (type === 'SPECIFIC' && payload.target.length === 0) {
+                throw new Error('Target NIK/Divisi wajib diisi untuk tipe Specific.');
+            }
+
+            const res = await fetchAPI(payload);
+
+            if (isApiSuccess(res)) {
+                showToast(res.message || 'Pengumuman berhasil dikirim!', false);
+                document.getElementById('broadcast-form').reset();
+                toggleBroadcastTargetField();
+                fetchBroadcastHistory();
+            } else {
+                showToast(res.message || 'Gagal mengirim pengumuman.', true);
+            }
+        } catch (err) {
+            showToast('Terjadi kesalahan: ' + err.message, true);
+        } finally {
+            btn.disabled = false;
+            btnText.textContent = 'KIRIM PENGUMUMAN';
+            btnSpinner.classList.add('hidden-view');
+        }
+    }
+
+    async function fetchBroadcastHistory() {
+        const container = document.getElementById('broadcast-history-list');
+        container.innerHTML = '<p class="p-6 text-center text-gray-400 text-sm">Memuat riwayat pengumuman...</p>';
+
+        const res = await fetchAPI({ action: 'get_broadcast_history' });
+        broadcastHistoryData = (isApiSuccess(res) && Array.isArray(res.data)) ? res.data : [];
+
+        if (broadcastHistoryData.length === 0) {
+            container.innerHTML = '<p class="p-6 text-center text-gray-400 text-sm">Belum ada pengumuman yang pernah dikirim.</p>';
+            return;
+        }
+
+        container.innerHTML = broadcastHistoryData.map((item) => (
+            '<div class="p-5">' +
+                '<div class="flex justify-between items-start mb-1">' +
+                    '<p class="font-bold text-sm text-gray-800">' + (item.title || '-') + '</p>' +
+                    '<span class="text-xs font-semibold px-2 py-0.5 rounded-full ' + (item.targetType === 'SPECIFIC' ? 'bg-blue-50 text-blue-600' : 'bg-green-50 text-green-600') + '">' + (item.targetType || 'GENERAL') + '</span>' +
+                '</div>' +
+                '<p class="text-sm text-gray-600">' + (item.body || '-') + '</p>' +
+                (item.target && item.target.length > 0 ? '<p class="text-xs text-gray-400 mt-1">Target: ' + (Array.isArray(item.target) ? item.target.join(', ') : item.target) + '</p>' : '') +
+                (item.attachmentUrl ? '<a href="' + item.attachmentUrl + '" target="_blank" class="text-xs text-blue-500 hover:underline mt-1 inline-block"><i class="fa-solid fa-paperclip mr-1"></i>Lampiran</a>' : '') +
+                '<p class="text-xs text-gray-400 mt-2">' + formatTanggalIndo(item.tanggal || item.createdAt) + ' &bull; oleh ' + (item.createdBy || 'HRD') + '</p>' +
+            '</div>'
+        )).join('');
+    }
+
+    // ============================================================
+    // MODULE: HRD FORM BUILDER
+    // State sementara form yang SEDANG DIEDIT di modal, terpisah dari
+    // availableForms supaya perubahan belum tersimpan tidak langsung
+    // memengaruhi daftar form yang dipakai di page Buat Pengajuan.
+    // ============================================================
+    let fbDraftForm = null; // { formId, formName, approvalFlow: [...], fields: [...] }
+
+    function renderFormBuilderList() {
+        const container = document.getElementById('form-builder-list');
+
+        if (availableForms.length === 0) {
+            container.innerHTML = '<p class="p-6 text-center text-gray-400 text-sm">Belum ada form yang terkonfigurasi.</p>';
+            return;
+        }
+
+        container.innerHTML = availableForms.map((f) => (
+            '<div class="px-6 py-4 flex items-center justify-between hover:bg-gray-50 cursor-pointer fb-list-item" data-form-id="' + f.formId + '">' +
+                '<div>' +
+                    '<p class="font-bold text-gray-800">' + f.formName + '</p>' +
+                    '<p class="text-xs text-gray-500 mt-0.5">' + f.fields.length + ' field &bull; Approval: ' + f.approvalFlow.join(' \u2192 ') + '</p>' +
+                '</div>' +
+                '<i class="fa-solid fa-chevron-right text-gray-300"></i>' +
+            '</div>'
+        )).join('');
+
+        document.querySelectorAll('.fb-list-item').forEach((el) => {
+            el.addEventListener('click', () => openFormBuilderModal(el.getAttribute('data-form-id')));
+        });
+    }
+
+    function openFormBuilderModal(formId) {
+        const original = availableForms.find((f) => f.formId === formId);
+        if (!original) return;
+
+        // Deep clone supaya edit di modal tidak mengubah availableForms
+        // secara langsung sebelum user benar-benar klik Simpan.
+        fbDraftForm = JSON.parse(JSON.stringify(original));
+
+        document.getElementById('form-builder-modal-title').textContent = 'Edit Form: ' + fbDraftForm.formName;
+        document.getElementById('fb-form-id').value = fbDraftForm.formId;
+        document.getElementById('fb-form-name').value = fbDraftForm.formName;
+        document.getElementById('fb-error').classList.add('hidden-view');
+
+        renderFbApprovalFlowChips();
+        renderFbFieldsList();
+
+        document.getElementById('modal-form-builder').classList.remove('hidden-view');
+    }
+
+    function closeFormBuilderModal() {
+        document.getElementById('modal-form-builder').classList.add('hidden-view');
+        fbDraftForm = null;
+    }
+
+    // ---- Approval Flow Chips (urutan role approver) ----
+    function renderFbApprovalFlowChips() {
+        const container = document.getElementById('fb-approval-flow-list');
+
+        if (fbDraftForm.approvalFlow.length === 0) {
+            container.innerHTML = '<p class="text-xs text-gray-400 italic">Belum ada approver. Tambahkan minimal 1 role di bawah.</p>';
+            return;
+        }
+
+        container.innerHTML = fbDraftForm.approvalFlow.map((role, idx) => (
+            '<span class="inline-flex items-center gap-2 bg-corporate-light text-corporate text-sm font-bold px-3 py-1.5 rounded-full border border-red-200">' +
+                (idx + 1) + '. ' + role +
+                '<button type="button" class="fb-remove-approver hover:text-red-900" data-idx="' + idx + '"><i class="fa-solid fa-xmark text-xs"></i></button>' +
+            '</span>'
+        )).join('');
+
+        document.querySelectorAll('.fb-remove-approver').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const idx = parseInt(btn.getAttribute('data-idx'), 10);
+                fbDraftForm.approvalFlow.splice(idx, 1);
+                renderFbApprovalFlowChips();
+            });
+        });
+    }
+
+    function addFbApprover() {
+        const role = document.getElementById('fb-add-approver-role').value;
+        fbDraftForm.approvalFlow.push(role);
+        renderFbApprovalFlowChips();
+    }
+
+    // ---- Fields List (daftar isian form, bisa tambah/hapus/edit) ----
+    function renderFbFieldsList() {
+        const container = document.getElementById('fb-fields-list');
+
+        if (fbDraftForm.fields.length === 0) {
+            container.innerHTML = '<p class="text-xs text-gray-400 italic p-3 bg-gray-50 rounded-lg">Belum ada field. Klik "Tambah Field" untuk menambahkan isian baru.</p>';
+            return;
+        }
+
+        container.innerHTML = fbDraftForm.fields.map((field, idx) => renderFbFieldRow(field, idx)).join('');
+        attachFbFieldRowListeners();
+    }
+
+    function renderFbFieldRow(field, idx) {
+        const typeOptions = FIELD_TYPES.map((t) =>
+            '<option value="' + t + '"' + (field.type === t ? ' selected' : '') + '>' + t + '</option>'
+        ).join('');
+
+        const showOptionsInput = field.type === 'select';
+
+        return (
+            '<div class="bg-gray-50 rounded-lg p-4 border border-gray-200">' +
+                '<div class="grid grid-cols-12 gap-2 items-start">' +
+                    '<input type="text" class="fb-field-label col-span-5 p-2 border border-gray-300 rounded-lg text-sm" placeholder="Label Field" value="' + (field.label || '') + '" data-idx="' + idx + '">' +
+                    '<select class="fb-field-type col-span-3 p-2 border border-gray-300 rounded-lg text-sm bg-white" data-idx="' + idx + '">' + typeOptions + '</select>' +
+                    '<label class="col-span-3 flex items-center gap-1.5 text-xs text-gray-600 mt-2.5">' +
+                        '<input type="checkbox" class="fb-field-required" data-idx="' + idx + '" ' + (field.required ? 'checked' : '') + '> Wajib diisi' +
+                    '</label>' +
+                    '<button type="button" class="fb-remove-field col-span-1 text-gray-400 hover:text-red-600 mt-1.5" data-idx="' + idx + '"><i class="fa-solid fa-trash"></i></button>' +
+                '</div>' +
+                '<div class="fb-options-wrapper mt-2 ' + (showOptionsInput ? '' : 'hidden-view') + '" data-idx="' + idx + '">' +
+                    '<input type="text" class="fb-field-options w-full p-2 border border-gray-300 rounded-lg text-xs" placeholder="Opsi dropdown, pisahkan dengan koma (misal: Ya, Tidak, Lainnya)" value="' + ((field.options || []).join(', ')) + '" data-idx="' + idx + '">' +
+                '</div>' +
+            '</div>'
+        );
+    }
+
+    // Field nama internal (field.name) di-generate otomatis dari label (slug snake_case),
+    // supaya HRD tidak perlu mengisi technical key secara manual - mengurangi human error.
+    function slugifyFieldName(label) {
+        return label.toLowerCase().trim().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '_') || ('field_' + fbFieldRowCounter++);
+    }
+
+    function attachFbFieldRowListeners() {
+        document.querySelectorAll('.fb-field-label').forEach((input) => {
+            input.addEventListener('input', () => {
+                const idx = parseInt(input.getAttribute('data-idx'), 10);
+                fbDraftForm.fields[idx].label = input.value;
+                fbDraftForm.fields[idx].name = slugifyFieldName(input.value);
+            });
+        });
+
+        document.querySelectorAll('.fb-field-type').forEach((select) => {
+            select.addEventListener('change', () => {
+                const idx = parseInt(select.getAttribute('data-idx'), 10);
+                fbDraftForm.fields[idx].type = select.value;
+                if (select.value === 'select' && !fbDraftForm.fields[idx].options) {
+                    fbDraftForm.fields[idx].options = [];
+                }
+                renderFbFieldsList(); // re-render supaya options-wrapper muncul/hilang sesuai tipe baru
+            });
+        });
+
+        document.querySelectorAll('.fb-field-required').forEach((checkbox) => {
+            checkbox.addEventListener('change', () => {
+                const idx = parseInt(checkbox.getAttribute('data-idx'), 10);
+                fbDraftForm.fields[idx].required = checkbox.checked;
+            });
+        });
+
+        document.querySelectorAll('.fb-field-options').forEach((input) => {
+            input.addEventListener('input', () => {
+                const idx = parseInt(input.getAttribute('data-idx'), 10);
+                fbDraftForm.fields[idx].options = input.value.split(',').map((o) => o.trim()).filter((o) => o.length > 0);
+            });
+        });
+
+        document.querySelectorAll('.fb-remove-field').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const idx = parseInt(btn.getAttribute('data-idx'), 10);
+                fbDraftForm.fields.splice(idx, 1);
+                renderFbFieldsList();
+            });
+        });
+    }
+
+    function addFbField() {
+        fbDraftForm.fields.push({ name: 'field_baru_' + fbFieldRowCounter++, label: '', type: 'text', required: false });
+        renderFbFieldsList();
+    }
+
+    async function saveFormBuilder() {
+        const errBox = document.getElementById('fb-error');
+        errBox.classList.add('hidden-view');
+
+        fbDraftForm.formName = document.getElementById('fb-form-name').value.trim();
+
+        // ---- Validasi sebelum kirim ke backend ----
+        if (!fbDraftForm.formName) {
+            errBox.textContent = 'Nama Form wajib diisi.';
+            errBox.classList.remove('hidden-view');
+            return;
+        }
+        if (fbDraftForm.approvalFlow.length === 0) {
+            errBox.textContent = 'Urutan Approval wajib memiliki minimal 1 role.';
+            errBox.classList.remove('hidden-view');
+            return;
+        }
+        if (fbDraftForm.fields.length === 0) {
+            errBox.textContent = 'Form wajib memiliki minimal 1 field isian.';
+            errBox.classList.remove('hidden-view');
+            return;
+        }
+        const emptyLabelField = fbDraftForm.fields.find((f) => !f.label || !f.label.trim());
+        if (emptyLabelField) {
+            errBox.textContent = 'Semua field wajib memiliki Label (ditemukan field dengan label kosong).';
+            errBox.classList.remove('hidden-view');
+            return;
+        }
+
+        const btn = document.getElementById('btn-save-form-builder');
+        const btnText = document.getElementById('btn-save-form-builder-text');
+        const btnSpinner = document.getElementById('btn-save-form-builder-spinner');
+
+        btn.disabled = true;
+        btnText.textContent = 'MENYIMPAN...';
+        btnSpinner.classList.remove('hidden-view');
+
+        try {
+            const res = await fetchAPI({
+                action: 'update_form_config',
+                formId: fbDraftForm.formId,
+                formName: fbDraftForm.formName,
+                approvalFlow: fbDraftForm.approvalFlow,
+                fields: fbDraftForm.fields
+            });
+
+            if (isApiSuccess(res)) {
+                showToast(res.message || 'Konfigurasi form berhasil disimpan!', false);
+                // Update availableForms in-memory supaya page Buat Pengajuan langsung reflect perubahan tanpa perlu reload
+                const formIdx = availableForms.findIndex((f) => f.formId === fbDraftForm.formId);
+                if (formIdx !== -1) availableForms[formIdx] = JSON.parse(JSON.stringify(fbDraftForm));
+                renderFormSelectorOptions();
+                renderFormBuilderList();
+                closeFormBuilderModal();
+            } else {
+                errBox.textContent = res.message || 'Gagal menyimpan konfigurasi form.';
+                errBox.classList.remove('hidden-view');
+            }
+        } catch (err) {
+            errBox.textContent = 'Terjadi kesalahan: ' + err.message;
+            errBox.classList.remove('hidden-view');
+        } finally {
+            btn.disabled = false;
+            btnText.textContent = 'Simpan Konfigurasi';
+            btnSpinner.classList.add('hidden-view');
+        }
+    }
+
+    // ============================================================
+    // MODULE: EXPORT DATA CSV
+    // Backend diasumsikan mengembalikan { success: true, csvData: "..." }
+    // berisi string CSV mentah yang sudah jadi - frontend hanya
+    // membungkusnya jadi file Blob dan memicu auto-download.
+    // ============================================================
+    async function executeExport() {
+        showToast('Sedang menyiapkan file export, mohon tunggu...', false);
+
+        try {
+            const res = await fetchAPI({ action: 'export_data' });
+
+            if (isApiSuccess(res) && res.csvData) {
+                const blob = new Blob([res.csvData], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'export_data_pengajuan_' + new Date().toISOString().slice(0, 10) + '.csv';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                showToast('File CSV berhasil diunduh.', false);
+            } else {
+                showToast(res.message || 'Gagal mengambil data export dari server.', true);
+            }
+        } catch (err) {
+            showToast('Terjadi kesalahan saat export: ' + err.message, true);
+        }
+    }
+</script>
+
 </body>
 </html>
